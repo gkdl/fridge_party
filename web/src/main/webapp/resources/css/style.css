@@ -1,0 +1,226 @@
+/* 기본 스타일 */
+body {
+    font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 네비게이션 바 커스텀 스타일 */
+.navbar-brand {
+    font-weight: 700;
+}
+
+/* 메인 컨테이너 스타일 */
+.container {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* 버튼 스타일 */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+/* 카드 스타일 */
+.card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 레시피 썸네일 이미지 */
+.recipe-thumbnail {
+    height: 200px;
+    object-fit: cover;
+}
+
+.recipe-thumbnail-placeholder {
+    height: 200px;
+}
+
+/* 레시피 상세 이미지 */
+.recipe-detail-image {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.recipe-detail-image-placeholder {
+    height: 300px;
+}
+
+/* 별점 스타일 */
+.rating-stars {
+    display: inline-flex;
+    align-items: center;
+}
+
+.filled-star, .empty-star {
+    width: 18px;
+    height: 18px;
+}
+
+.filled-star {
+    color: #ffc107;
+}
+
+.filled-heart {
+    color: #dc3545;
+}
+
+/* 평점 입력 스타일 */
+.rating-input {
+    display: flex;
+    align-items: center;
+}
+
+.rating-star {
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.rating-star:hover .rating-star-icon, 
+.rating-star:hover ~ .rating-star .rating-star-icon {
+    color: #ffc107;
+}
+
+/* 재료 목록 스타일 */
+.ingredients-list .list-group-item {
+    border-left: none;
+    border-right: none;
+}
+
+.ingredients-list .list-group-item:first-child {
+    border-top: none;
+}
+
+/* 냉장고 관리 페이지 스타일 */
+.ingredient-row {
+    margin-bottom: 10px;
+}
+
+.selected-ingredients {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.selected-ingredient {
+    display: inline-flex;
+    align-items: center;
+}
+
+.remove-ingredient {
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+/* 자동완성 드롭다운 스타일 */
+.autocomplete-dropdown {
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1050;
+}
+
+.autocomplete-item {
+    cursor: pointer;
+}
+
+.autocomplete-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* 활동 요약 아이콘 */
+.activity-icon {
+    width: 60px;
+    height: 60px;
+}
+
+.activity-stats h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* 모바일 최적화 스타일 */
+@media (max-width: 768px) {
+    .recipe-thumbnail {
+        height: 160px;
+    }
+    
+    .recipe-detail-image {
+        max-height: 250px;
+    }
+    
+    .activity-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .activity-stats h3 {
+        font-size: 1.5rem;
+    }
+    
+    .d-md-flex {
+        display: block !important;
+    }
+    
+    .text-md-end {
+        text-align: left !important;
+        margin-top: 10px;
+    }
+}
+
+/* 페이지별 컨테이너 여백 설정 */
+.add-recipe-container,
+.my-refrigerator-container,
+.recipe-list-container,
+.recipe-detail-container,
+.my-favorites-container,
+.my-page-container {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+/* 검색창 스타일 */
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* 작은 아이콘 스타일 */
+.feather-small {
+    width: 16px;
+    height: 16px;
+}
+
+/* 조리 방법 목록 스타일 */
+.instructions-list li {
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+}
+
+/* 레시피 정보 아이콘 스타일 */
+.recipe-info-icon {
+    margin-bottom: 10px;
+}
+
+.recipe-info-icon i {
+    width: 30px;
+    height: 30px;
+    color: #007bff;
+}
+
+/* z-index 설정 */
+.z-index-1000 {
+    z-index: 1000;
+}

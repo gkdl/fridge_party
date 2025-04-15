@@ -1,0 +1,49 @@
+server:
+  port: 8000
+  address: 0.0.0.0
+  servlet:
+    context-path: /
+    session:
+      timeout: 1d
+      cookie:
+        http-only: false
+        secure: false
+        max-age: 86400
+      tracking-modes: cookie
+
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+
+  datasource:
+    url: jdbc:mariadb://wva29lp9.synology.me:3306/recipe_db
+    username: myadmin
+    password: Daeyoung12!@
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MariaDBDialect
+        connection:
+          provider_disables_autocommit: false
+        transaction:
+          default_isolation: 2
+        generate_statistics: false
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    open-in-view: false
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    com.fridge.recipe: DEBUG
+    org.springframework.security: DEBUG
+jwt:
+  secret: recipesecretkeyforuserauth123456789012345678901234567890
+  expiration: 86400000

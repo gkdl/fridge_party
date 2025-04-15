@@ -1,0 +1,42 @@
+spring:
+  webflux:
+    codec:
+      max-in-memory-size: 10MB
+
+  datasource:
+    url: jdbc:mariadb://wva29lp9.synology.me:3306/recipe_db
+    username: myadmin
+    password: Daeyoung12!@
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+#    show-sql: true
+    properties:
+      hibernate:
+#        format_sql: true
+        dialect: org.hibernate.dialect.MariaDBDialect
+        connection:
+          provider_disables_autocommit: false
+        transaction:
+          default_isolation: 2
+        generate_statistics: false
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    open-in-view: false
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate: DEBUG
+    com.fridge.recipe: DEBUG
+    org.springframework.security: DEBUG
+
+# 식품의약품안전처 API 설정
+food:
+  api:
+    key: 565fe1f3fd7e44bfa7d0
+
+jwt:
+  secret: recipesecretkeyforuserauth123456789012345678901234567890
+  expiration: 3600000 # 1시간 (1시간 = 3600초 = 3600000ms)
