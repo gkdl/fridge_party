@@ -1,6 +1,75 @@
+</div>
+</div>
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<!-- 모바일 하단 액션 바 -->
+<div class="d-md-none fixed-bottom bg-white shadow-lg" id="mobile-action-bar">
+    <div class="d-flex justify-content-around p-2">
+        <a href="/recipes" class="text-center text-decoration-none text-secondary">
+            <div class="d-flex flex-column align-items-center">
+                <i data-feather="book-open" style="width: 20px; height: 20px;"></i>
+                <span class="small mt-1">레시피</span>
+            </div>
+        </a>
+        <a href="/myRefrigerator" class="text-center text-decoration-none text-secondary">
+            <div class="d-flex flex-column align-items-center">
+                <i data-feather="archive" style="width: 20px; height: 20px;"></i>
+                <span class="small mt-1">냉장고</span>
+            </div>
+        </a>
+        <a href="/" class="text-center text-decoration-none text-secondary">
+            <div class="d-flex flex-column align-items-center">
+                <i data-feather="home" style="width: 20px; height: 20px;"></i>
+                <span class="small mt-1">홈</span>
+            </div>
+        </a>
+
+        <c:if test="${isLoggedIn}">
+            <a href="/myFavorites" class="text-center text-decoration-none text-secondary">
+                <div class="d-flex flex-column align-items-center">
+                    <i data-feather="heart" style="width: 20px; height: 20px;"></i>
+                    <span class="small mt-1">즐겨찾기</span>
+                </div>
+            </a>
+            <a href="/myPage" class="text-center text-decoration-none text-secondary">
+                <div class="d-flex flex-column align-items-center">
+                    <i data-feather="user" style="width: 20px; height: 20px;"></i>
+                    <span class="small mt-1">내정보</span>
+                </div>
+            </a>
+        </c:if>
+        <c:if test="${!isLoggedIn}">
+            <a href="/myFavorites" class="text-center text-decoration-none text-secondary">
+                <div class="d-flex flex-column align-items-center">
+                    <i data-feather="heart" style="width: 20px; height: 20px;"></i>
+                    <span class="small mt-1">즐겨찾기</span>
+                </div>
+            </a>
+            <a href="/login" class="text-center text-decoration-none text-secondary">
+                <div class="d-flex flex-column align-items-center">
+                    <i data-feather="log-in" style="width: 20px; height: 20px;"></i>
+                    <span class="small mt-1">로그인</span>
+                </div>
+            </a>
+        </c:if>
     </div>
 </div>
-    
+
+<!-- 모바일 하단 액션바가 있을 때 푸터에 패딩 추가 -->
+<style>
+    @media (max-width: 767.98px) {
+        .footer {
+            padding-bottom: 76px;
+        }
+
+        /* 메인 컨텐츠 영역도 하단 패딩 추가 */
+        .main-content {
+            padding-bottom: 80px;
+        }
+    }
+</style>
+
 <footer class="footer">
     <div class="footer-top py-5" style="background-color: #292929;">
         <div class="container">
@@ -88,13 +157,13 @@
             e.preventDefault();
             handleLogout();
         });
-        
+
         // 모바일 버전 로그아웃 처리
         $('#mobileLogoutBtn').click(function(e) {
             e.preventDefault();
             handleLogout();
         });
-        
+
         // 로그아웃 공통 함수
         function handleLogout() {
             $.ajax({
@@ -109,10 +178,21 @@
                 }
             });
         }
-        
-        // Feather 아이콘 초기화
+
+        // Feather 아이콘 초기화 (모바일 하단 액션바 포함)
         feather.replace();
-        
+
+        // 모바일 액션바에서 현재 페이지에 해당하는 아이콘 활성화
+        const currentPath = window.location.pathname;
+        $('#mobile-action-bar a').each(function() {
+            const href = $(this).attr('href');
+            // 경로가 정확히 일치하거나, 서브 경로일 경우 (예: /recipes/123은 /recipes와 일치)
+            if (currentPath === href || (href !== '/' && currentPath.startsWith(href))) {
+                $(this).removeClass('text-secondary').addClass('text-primary');
+                $(this).find('i').css('stroke', '#4CAF50'); // 변수 사용 필요시 var(--primary-color)로 변경
+            }
+        });
+
         // 호버 효과
         $('.card').hover(
             function() {
@@ -122,10 +202,9 @@
                 $(this).removeClass('shadow-lg');
             }
         );
-        
+
         // 스크롤 애니메이션 - 필요한 경우 AOS 라이브러리 추가
     });
 </script>
-    
 </body>
 </html>

@@ -5,15 +5,13 @@ import com.fridge.recipe.vo.UserDTO
 import com.fridge.recipe.vo.UserLoginDTO
 import com.fridge.recipe.vo.UserRegistrationDTO
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class UserService(
     private val userPort: UserPort
 ) {
-    fun getUserById(id: Long): UserDTO? {
-        return userPort.getUserById(id)
-    }
-
     fun getUserByEmail(email: String): UserDTO? {
         return userPort.getUserByEmail(email)
     }

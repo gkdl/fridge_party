@@ -187,27 +187,28 @@ function renderIngredients(ingredients) {
         let html = '';
         
         ingredients.forEach(function(ingredient) {
+            console.log(ingredient)
             // 유통기한 상태 계산
             const expiryStatus = calculateExpiryStatus(ingredient.expiryDate);
             
             html += `
-                <div class="col" data-category="${ingredient.category || '기타'}">
-                    <div class="card h-100 ingredient-card" data-ingredient-id="${ingredient.ingredientId}">
+                <div class="col" data-category="` + (ingredient.category != null ? ingredient.category : '기타') + `">
+                    <div class="card h-100 ingredient-card" data-ingredient-id="` + ingredient.ingredientId + `">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="card-title mb-0">${ingredient.ingredientName}</h5>
+                                <h5 class="card-title mb-0">` + ingredient.ingredientName + `</h5>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i data-feather="more-vertical"></i>
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item edit-ingredient" href="#" 
-                                               data-id="${ingredient.id}" 
-                                               data-name="${ingredient.ingredientName}" 
-                                               data-quantity="${ingredient.quantity || ''}" 
-                                               data-unit="${ingredient.unit || ''}" 
-                                               data-expiry="${ingredient.expiryDate || ''}">수정</a></li>
-                                        <li><a class="dropdown-item delete-ingredient" href="#" data-id="${ingredient.id}">삭제</a></li>
+                                               data-id="` + ingredient.id + `" 
+                                               data-name="` + ingredient.ingredientName + `" 
+                                               data-quantity="` + ingredient.quantity + `" 
+                                               data-unit="` + ingredient.unit + `" 
+                                               data-expiry="` + ingredient.expiryDate + `">수정</a></li>
+                                        <li><a class="dropdown-item delete-ingredient" href="#" data-id="` + ingredient.id + `">삭제</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -431,5 +432,55 @@ function loadRecommendedRecipes() {
             $('#noRecipes').removeClass('d-none');
             console.error('추천 레시피 로드 실패', error);
         }
+    });
+}
+
+
+/**
+ * 유통기한 남은 일수 계산 및 표시 함수
+ * @param {string} expiryDateString - ISO 형식의 유통기한 날짜 문자열
+ * @returns {Object} 남은 일수 정보 및 상태 클래스
+ */
+function calculateExpiryStatus(expiryDateString) {
+    console.log("asdasdsd")
+    if (!expiryDateString) {
+        return { text: '유통기한 정보 없음', class: 'bg-secondary' };
+    }
+
+    const expiryDate = new Date(expiryDateString);
+    const today = new Date();
+
+    // 날짜 비교를 위해 시간 정보 제거
+    today.setHours(0, 0, 0, 0);
+    expiryDate.setHours(0, 0, 0, 0);
+
+    // 남은 일수 계산
+    const diffTime = expiryDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+        return { text: '유통기한 만료', class: 'bg-danger' };
+    } else if (diffDays === 0) {
+        return { text: '오늘 만료', class: 'bg-warning' };
+    } else if (diffDays <= 3) {
+        return { text: `유통기한 ` + diffDays + `일 남음`, class: 'bg-warning' };
+    } else {
+        return { text: `유통기한: ` + formatDate(expiryDateString) + ``, class: 'bg-info' };
+    }
+}
+
+/**
+ * 날짜 형식 변환 함수
+ * @param {string} dateString - ISO 형식의 날짜 문자열
+ * @returns {string} 형식화된 날짜 문자열
+ */
+function formatDate(dateString) {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 }

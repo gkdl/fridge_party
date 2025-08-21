@@ -9,5 +9,5 @@ package com.fridge.recipe.enum
  * COOK: 요리 완료 체크
  */
 enum class ActivityType {
-    VIEW_RECIPE, FAVORITE, RATING, SEARCH, COOK
+    SEARCH_RECIPE, VIEW_CATEGORY, VIEW_RECIPE, FAVORITE, RATING, SEARCH, COOK, COOK_RECIPE, FAVORITE_RECIPE
 }

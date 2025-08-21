@@ -8,6 +8,7 @@ plugins {
     kotlin("plugin.jpa") version "1.6.21"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.6.21"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.21"
+    id("war")
 }
 
 group = "com.fridge.recipe"

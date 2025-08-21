@@ -249,7 +249,6 @@ class RecommendationAdapter (
             instructions = recipe.instructions,
             cookingTime = recipe.cookingTime,
             servingSize = recipe.servingSize,
-            imageUrl = recipe.imageUrl,
             images = images,
             steps = steps, // 단계별 조리법 추가
             userId = recipe.user.id,
@@ -354,5 +353,38 @@ class RecommendationAdapter (
         score += ingredientSimilarity * 0.35
 
         return score
+    }
+
+    /**
+     * 현재 계절에 맞는 레시피 추천
+     */
+    override fun getSeasonalRecipes(season: Season?, count: Int, userId: Long?): List<RecipeDTO> {
+        // 계절이 지정되지 않은 경우 현재 월에 따라 자동 지정
+        val currentSeason = season ?: getCurrentSeason()
+
+        val pageable: Pageable = PageRequest.of(0, count)
+        val seasonalRecipes = recipeRepository.findBySeasonOrAll(currentSeason, pageable)
+
+        return seasonalRecipes.map { recipe ->
+            if (userId != null) {
+                recipePort.getRecipeById(recipe.id, userId)
+            } else {
+                convertToDTO(recipe)
+            }
+        }
+    }
+
+    /**
+     * 현재 월을 기준으로 계절 판단
+     */
+    override fun getCurrentSeason(): Season {
+        val month = LocalDateTime.now().monthValue
+
+        return when (month) {
+            3, 4, 5 -> Season.SPRING   // 봄: 3-5월
+            6, 7, 8 -> Season.SUMMER   // 여름: 6-8월
+            9, 10, 11 -> Season.FALL   // 가을: 9-11월
+            else -> Season.WINTER      // 겨울: 12-2월
+        }
     }
 }

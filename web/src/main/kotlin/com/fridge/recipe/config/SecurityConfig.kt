@@ -19,13 +19,7 @@ class SecurityConfig (
     private val customUserDetailsService: CustomUserDetailsService,
     @Lazy private val customLogoutSuccessHandler: CustomLogoutSuccessHandler,
     @Lazy private val customLoginSuccessHandler: CustomLoginSuccessHandler
-
 ) : WebSecurityConfigurerAdapter() {
-
-//    @Autowired
-//    @Lazy
-//    private lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
-
     /**
      * HTTP 보안 설정
      * @param http HttpSecurity 객체
@@ -44,8 +38,8 @@ class SecurityConfig (
             .authorizeRequests()
                 .antMatchers("/", "/error", "/favicon.ico", "/**/*.png", "/**/*.gif", "/**/*.svg",
                     "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js", "/resources/**", "/images/**",
-                    "/user/login", "/user/signup", "/recipe/list", "/recipe/view/**",
-                    "/api/**", "/oauth2/**", "/register")
+                    "/user/login", "/user/signup", "/recipe/list", "/recipe/view/**", "/api/recipes/user/*",
+                    "/api/**", "/oauth2/**", "/register", "/recipes", "/recipes/*", "/api/recipes/*/similar")
                 .permitAll()
                 .anyRequest().authenticated()
             .and()

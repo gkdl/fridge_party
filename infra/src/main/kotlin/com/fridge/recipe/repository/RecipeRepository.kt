@@ -15,7 +15,10 @@ import java.util.*
 interface RecipeRepository : JpaRepository<Recipe, Long> {
     fun findByUser(user: User, pageable: Pageable): Page<Recipe>
     fun findByTitleContaining(title: String, pageable: Pageable): Page<Recipe>
-    
+
+    // 특정 사용자의 레시피 중 특정 ID를 제외한 레시피 조회
+    fun findByUserAndIdNotIn(user: User, excludeIds: List<Long>, pageable: Pageable): Page<Recipe>
+
     // 계절별 레시피 검색 기능 추가
     fun findBySeason(season: Season, pageable: Pageable): List<Recipe>
     

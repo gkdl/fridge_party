@@ -18,7 +18,6 @@ fun Ingredient.toDTO(currentSeason: Season): IngredientDTO {
         category = this.category,
         unit = this.unit,
         description = this.description,
-        imageUrl = this.imageUrl,
         springAvailability = this.springAvailability.name,
         summerAvailability = this.summerAvailability.name,
         fallAvailability = this.fallAvailability.name,

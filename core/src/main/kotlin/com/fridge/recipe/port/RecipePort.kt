@@ -20,4 +20,15 @@ interface RecipePort {
 
     fun searchRecipes(searchDTO: RecipeSearchDTO, userId: Long?): Page<RecipeDTO>
 
+    fun getUserRecipesByIdExcept(userId: Long, excludeRecipeId: Long?, limit: Int): Page<RecipeDTO>
+
+    fun toggleFavorite(userId: Long, recipeId: Long): Boolean
+
+    fun getUserFavorites(userId: Long, page: Int, size: Int): Page<RecipeDTO>
+
+    fun createRecipe(userId: Long, recipeCreateDTO: RecipeCreateDTO): RecipeDTO
+
+    fun getUserRecipes(userId: Long, page: Int, size: Int): Page<RecipeDTO>
+
+    fun deleteRecipe(userId: Long, recipeId: Long)
 }

@@ -17,13 +17,7 @@ $(document).ready(function() {
             window.location.href = `/recipes?query=${encodeURIComponent(query)}`;
         }
     });
-    
-    // 즐겨찾기 토글 버튼 이벤트
-    $(document).on('click', '.favorite-btn', function() {
-        const recipeId = $(this).data('recipe-id');
-        toggleFavorite(recipeId, $(this));
-    });
-    
+
     // 평점 선택 이벤트
     $('.rating-star').click(function() {
         const value = $(this).data('value');
@@ -103,11 +97,6 @@ $(document).ready(function() {
     // 재료 입력 자동완성
     setupIngredientAutocomplete();
     
-    // 재료 추가 버튼 이벤트
-    $('#addIngredientBtn').click(function() {
-        addIngredientRow();
-    });
-    
     // 재료 삭제 버튼 이벤트
     $(document).on('click', '.remove-ingredient', function() {
         const $ingredientRows = $('.ingredient-row');
@@ -131,45 +120,6 @@ $(document).ready(function() {
         saveRecipe();
     });
 });
-
-/**
- * 즐겨찾기 토글 함수
- * @param {number} recipeId - 레시피 ID
- * @param {jQuery} $button - 즐겨찾기 버튼 jQuery 객체
- */
-function toggleFavorite(recipeId, $button) {
-    $.ajax({
-        url: `/api/recipes/${recipeId}/favorite`,
-        type: 'POST',
-        success: function(response) {
-            if (response.isFavorite) {
-                $button.data('is-favorite', true);
-                if ($button.hasClass('btn')) {
-                    $button.html('<i data-feather="heart" class="text-danger filled-heart"></i> 즐겨찾기 해제');
-                } else {
-                    $button.html('<i data-feather="heart" class="text-danger filled-heart"></i>');
-                }
-                
-                // 즐겨찾기 추가 활동 기록
-                if (typeof recordFavoriteActivity === 'function') {
-                    recordFavoriteActivity(recipeId, true);
-                }
-            } else {
-                $button.data('is-favorite', false);
-                if ($button.hasClass('btn')) {
-                    $button.html('<i data-feather="heart" class="empty-heart"></i> 즐겨찾기 추가');
-                } else {
-                    $button.html('<i data-feather="heart" class="empty-heart"></i>');
-                }
-            }
-            feather.replace();
-        },
-        error: function(error) {
-            console.error('즐겨찾기 토글 실패', error);
-            alert('즐겨찾기 등록/해제 중 오류가 발생했습니다.');
-        }
-    });
-}
 
 /**
  * 레시피 저장 함수
@@ -208,7 +158,7 @@ function saveRecipe() {
             ingredients.push({
                 ingredientId: $(this).find('.ingredient-id').val() || null,
                 name: name,
-                quantity: parseFloat(quantity),
+                quantity: quantity,
                 unit: $(this).find('.ingredient-unit').val(),
                 optional: $(this).find('.ingredient-optional').is(':checked')
             });
@@ -257,7 +207,7 @@ function saveRecipe() {
         instructions: $('.step-description').map(function() { return $(this).val().trim(); }).get().join('\n\n'), // 단계별 설명을 통합
         cookingTime: $('#cookingTime').val() ? parseInt($('#cookingTime').val()) : null,
         servingSize: $('#servingSize').val() ? parseInt($('#servingSize').val()) : null,
-        imageUrl: $('#imageUrl').val().trim(),
+        season: $('#season').val(), // 계절 정보 추가
         images: images,
         ingredients: ingredients,
         steps: steps
@@ -282,96 +232,6 @@ function saveRecipe() {
             alert('레시피 저장에 실패했습니다.');
         }
     });
-}
-
-/**
- * 레시피 평점 목록 로드 함수
- * @param {number} recipeId - 레시피 ID
- */
-function loadRatings(recipeId) {
-    $.ajax({
-        url: `/api/recipes/${recipeId}/ratings`,
-        type: 'GET',
-        success: function(response) {
-            let ratingsHtml = '';
-            
-            if (response.length === 0) {
-                ratingsHtml = '<p class="text-center text-muted">아직 리뷰가 없습니다.</p>';
-            } else {
-                response.forEach(function(rating) {
-                    let starsHtml = generateStarRating(rating.rating);
-                    
-                    ratingsHtml += `
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <strong>${rating.username}</strong>
-                                        <div class="rating-stars">
-                                            ${starsHtml}
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">${formatDateTime(rating.createdAt)}</small>
-                                </div>
-                                <p class="card-text">${rating.comment || '코멘트 없음'}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            $('#ratingsContainer').html(ratingsHtml);
-            feather.replace();
-        },
-        error: function(error) {
-            console.error('평점 목록 로드 실패', error);
-            $('#ratingsContainer').html('<p class="text-center text-danger">리뷰를 불러오는데 실패했습니다.</p>');
-        }
-    });
-}
-
-/**
- * 재료 행 추가 함수
- */
-function addIngredientRow() {
-    const newRow = `
-        <div class="row ingredient-row mb-2">
-            <div class="col-md-5">
-                <input type="text" class="form-control ingredient-name" placeholder="재료명" required>
-                <input type="hidden" class="ingredient-id">
-            </div>
-            <div class="col-md-3">
-                <input type="number" class="form-control ingredient-quantity" placeholder="수량" step="0.1" min="0" required>
-            </div>
-            <div class="col-md-2">
-                <select class="form-select ingredient-unit">
-                    <option value="" selected>단위</option>
-                    <option value="g">g</option>
-                    <option value="kg">kg</option>
-                    <option value="ml">ml</option>
-                    <option value="L">L</option>
-                    <option value="개">개</option>
-                    <option value="조각">조각</option>
-                    <option value="줌">줌</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <div class="form-check pt-2">
-                    <input class="form-check-input ingredient-optional" type="checkbox">
-                    <label class="form-check-label">선택사항</label>
-                </div>
-            </div>
-            <div class="col-auto d-flex align-items-center">
-                <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient">
-                    <i data-feather="x"></i>
-                </button>
-            </div>
-        </div>
-    `;
-    
-    $('#ingredientsContainer').append(newRow);
-    feather.replace();
-    setupIngredientAutocomplete();
 }
 
 /**
@@ -442,162 +302,6 @@ function setupIngredientAutocomplete() {
     $(document).on('click', function(e) {
         if (!$(e.target).closest('.autocomplete-dropdown, .ingredient-name').length) {
             $('.autocomplete-dropdown').hide();
-        }
-    });
-}
-
-/**
- * 유사한 레시피 로드 함수
- * @param {number} recipeId - 레시피 ID
- */
-function loadSimilarRecipes(recipeId) {
-    $.ajax({
-        url: `/api/recipes/similar?recipeId=${recipeId}&count=3`,
-        type: 'GET',
-        success: function(response) {
-            let recipesHtml = '';
-            
-            if (response.length === 0) {
-                recipesHtml = '<p class="text-center text-muted">유사한 레시피가 없습니다.</p>';
-            } else {
-                response.forEach(function(recipe) {
-                    recipesHtml += `
-                        <div class="card mb-3">
-                            <div class="row g-0">
-                                <div class="col-4">
-                                    ${recipe.imageUrl ? 
-                                        `<img src="${recipe.imageUrl}" class="img-fluid rounded-start" alt="${recipe.title}">` : 
-                                        `<div class="img-fluid rounded-start bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
-                                            <i data-feather="camera" class="text-secondary"></i>
-                                        </div>`
-                                    }
-                                </div>
-                                <div class="col-8">
-                                    <div class="card-body p-2">
-                                        <h6 class="card-title">${recipe.title}</h6>
-                                        <div class="small rating-stars">
-                                            ${generateStarRating(recipe.avgRating)}
-                                            <span class="text-muted">(${recipe.ratingCount})</span>
-                                        </div>
-                                        <a href="/recipes/${recipe.id}" class="stretched-link"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            $('#similarRecipes').html(recipesHtml);
-            feather.replace();
-        },
-        error: function(error) {
-            console.error('유사한 레시피 로드 실패', error);
-            $('#similarRecipes').html('<p class="text-center text-danger">레시피를 불러오는데 실패했습니다.</p>');
-        }
-    });
-}
-
-/**
- * 작성자의 다른 레시피 로드 함수
- * @param {number} userId - 사용자 ID
- * @param {number} currentRecipeId - 현재 레시피 ID (제외할 항목)
- */
-function loadAuthorOtherRecipes(userId, currentRecipeId) {
-    $.ajax({
-        url: `/api/recipes/user/${userId}?count=3&exclude=${currentRecipeId}`,
-        type: 'GET',
-        success: function(response) {
-            let recipesHtml = '';
-            
-            if (response.length === 0) {
-                recipesHtml = '<p class="text-center text-muted">다른 레시피가 없습니다.</p>';
-            } else {
-                response.forEach(function(recipe) {
-                    recipesHtml += `
-                        <div class="card mb-3">
-                            <div class="row g-0">
-                                <div class="col-4">
-                                    ${recipe.imageUrl ? 
-                                        `<img src="${recipe.imageUrl}" class="img-fluid rounded-start" alt="${recipe.title}">` : 
-                                        `<div class="img-fluid rounded-start bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
-                                            <i data-feather="camera" class="text-secondary"></i>
-                                        </div>`
-                                    }
-                                </div>
-                                <div class="col-8">
-                                    <div class="card-body p-2">
-                                        <h6 class="card-title">${recipe.title}</h6>
-                                        <div class="small rating-stars">
-                                            ${generateStarRating(recipe.avgRating)}
-                                            <span class="text-muted">(${recipe.ratingCount})</span>
-                                        </div>
-                                        <a href="/recipes/${recipe.id}" class="stretched-link"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            $('#authorOtherRecipes').html(recipesHtml);
-            feather.replace();
-        },
-        error: function(error) {
-            console.error('작성자의 다른 레시피 로드 실패', error);
-            $('#authorOtherRecipes').html('<p class="text-center text-danger">레시피를 불러오는데 실패했습니다.</p>');
-        }
-    });
-}
-
-/**
- * 냉장고 재료 체크 함수
- * @param {number} recipeId - 레시피 ID
- */
-function loadRefrigeratorIngredients(recipeId) {
-    $.ajax({
-        url: '/api/user/ingredients',
-        type: 'GET',
-        success: function(userIngredients) {
-            // 레시피 재료 가져오기
-            $.ajax({
-                url: `/api/recipes/${recipeId}`,
-                type: 'GET',
-                success: function(recipe) {
-                    // 냉장고 재료와 레시피 재료 비교
-                    let ingredientsHtml = '<ul class="list-group list-group-flush">';
-                    
-                    recipe.ingredients.forEach(function(recipeIng) {
-                        // 냉장고에 해당 재료가 있는지 확인
-                        const hasIngredient = userIngredients.some(function(userIng) {
-                            return userIng.ingredientId === recipeIng.ingredientId;
-                        });
-                        
-                        ingredientsHtml += `
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>${recipeIng.name}</span>
-                                <span>
-                                    ${hasIngredient ? 
-                                        '<span class="badge bg-success rounded-pill">있음</span>' : 
-                                        '<span class="badge bg-danger rounded-pill">없음</span>'}
-                                </span>
-                            </li>
-                        `;
-                    });
-                    
-                    ingredientsHtml += '</ul>';
-                    $('#refrigeratorIngredients').html(ingredientsHtml);
-                },
-                error: function(error) {
-                    console.error('레시피 로드 실패', error);
-                    $('#refrigeratorIngredients').html('<p class="text-center text-danger">레시피 정보를 불러오는데 실패했습니다.</p>');
-                }
-            });
-        },
-        error: function(error) {
-            console.error('사용자 재료 로드 실패', error);
-            $('#refrigeratorIngredients').html('<p class="text-center text-danger">냉장고 재료를 불러오는데 실패했습니다.</p>');
         }
     });
 }

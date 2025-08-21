@@ -43,7 +43,10 @@ class RecipeAdapter (
                     .map { it.toDTO() }
 
             val ingredients = recipeIngredientRepository.findByRecipe(recipe)
-            recipe.toDTO(ingredients, false, images, steps)
+
+            val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+            recipe.toDTO(ingredients, false, images, steps, favoriteCount)
         }.content
     }
 
@@ -59,7 +62,10 @@ class RecipeAdapter (
 
 
             val ingredients = recipeIngredientRepository.findByRecipe(recipe)
-            recipe.toDTO(ingredients, false, images, steps)
+
+            val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+            recipe.toDTO(ingredients, false, images, steps, favoriteCount)
         }.content
     }
 
@@ -82,7 +88,9 @@ class RecipeAdapter (
             val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
                 .map { it.toDTO() }
 
-            recipe.toDTO(ingredients, isFavorite, images, steps)
+            val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+            recipe.toDTO(ingredients, isFavorite, images, steps, favoriteCount)
         }
     }
 
@@ -106,7 +114,9 @@ class RecipeAdapter (
         val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
             .map { it.toDTO() }
 
-        return recipe.toDTO(ingredients, isFavorite, images, steps)
+        val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+        return recipe.toDTO(ingredients, isFavorite, images, steps, favoriteCount)
     }
 
     override fun updateRecipe(userId: Long, recipeId: Long, recipeUpdateDTO: RecipeCreateDTO): RecipeDTO {
@@ -122,7 +132,6 @@ class RecipeAdapter (
         recipe.instructions = recipeUpdateDTO.instructions // 레거시 지원을 위해 유지
         recipe.cookingTime = recipeUpdateDTO.cookingTime
         recipe.servingSize = recipeUpdateDTO.servingSize
-        recipe.imageUrl = recipeUpdateDTO.imageUrl ?: recipe.imageUrl
         recipe.updatedAt = LocalDateTime.now()
 
         recipeRepository.save(recipe)
@@ -176,35 +185,6 @@ class RecipeAdapter (
             }
             recipeImageRepository.saveAll(recipeImages)
         }
-        // 새 단일 이미지만 있고 기존 다중 이미지가 없는 경우
-        else if (recipeUpdateDTO.imageUrl != null && existingImages.isEmpty()) {
-            val primaryImage = RecipeImage(
-                recipe = recipe,
-                imageUrl = recipeUpdateDTO.imageUrl!!,
-                isPrimary = true
-            )
-            recipeImageRepository.save(primaryImage)
-        }
-        // 기존 단일 이미지가 갱신되었고 다중 이미지가 있는 경우
-        else if (recipeUpdateDTO.imageUrl != null && recipeUpdateDTO.imageUrl != recipe.imageUrl && existingImages.isNotEmpty()) {
-            // 기본(primary) 이미지만 업데이트
-            val primaryImage = existingImages.find { it.isPrimary }
-            if (primaryImage != null) {
-                val updatedPrimaryImage = primaryImage.copy(
-                    imageUrl = recipeUpdateDTO.imageUrl!!,
-                    updatedAt = LocalDateTime.now()
-                )
-                recipeImageRepository.save(updatedPrimaryImage)
-            } else {
-                // 기본 이미지가 없으면 새로 추가
-                val newPrimaryImage = RecipeImage(
-                    recipe = recipe,
-                    imageUrl = recipeUpdateDTO.imageUrl!!,
-                    isPrimary = true
-                )
-                recipeImageRepository.save(newPrimaryImage)
-            }
-        }
 
         // 기존 단계별 조리법 삭제
         recipeStepRepository.deleteByRecipe(recipe)
@@ -229,7 +209,9 @@ class RecipeAdapter (
         val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
             .map { it.toDTO() }
 
-        return recipe.toDTO(recipeIngredients, false, images, steps)
+        val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+        return recipe.toDTO(recipeIngredients, false, images, steps, favoriteCount)
     }
 
     override fun rateRecipe(userId: Long, ratingCreateDTO: RatingCreateDTO): RatingDTO {
@@ -328,8 +310,221 @@ class RecipeAdapter (
             val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
                 .map { it.toDTO() }
 
-            recipe.toDTO(ingredients, isFavorite, images, steps)
+            val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+            recipe.toDTO(ingredients, isFavorite, images, steps, favoriteCount)
         }
     }
 
+    /**
+     * 특정 사용자의 다른 레시피 불러오기 (현재 레시피 제외)
+     * @param userId 사용자 ID
+     * @param excludeRecipeId 제외할 레시피 ID
+     * @param limit 가져올 개수
+     * @param viewerUserId 조회 중인 사용자 ID (즐겨찾기 확인용)
+     * @return 레시피 목록
+     */
+    override fun getUserRecipesByIdExcept(userId: Long, excludeRecipeId: Long?, limit: Int): Page<RecipeDTO> {
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+
+        val pageable: Pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending())
+
+        val recipes = if (excludeRecipeId != null) {
+            // 특정 레시피를 제외하고 조회
+            recipeRepository.findByUserAndIdNotIn(user, listOf(excludeRecipeId), pageable)
+        } else {
+            // 모든 레시피 조회
+            recipeRepository.findByUser(user, pageable)
+        }
+
+        return recipes.map { recipe ->
+            val ingredients = recipeIngredientRepository.findByRecipe(recipe)
+            val isFavorite = if (userId != null) {
+                favoriteRepository.findByUserIdAndRecipeId(userId, recipe.id).isPresent
+            } else {
+                false
+            }
+
+            val images = recipeImageRepository.findByRecipeIdOrderByIsPrimaryDesc(recipe.id)
+                .map { it.toDTO() }
+
+            // 단계별 조리법 로드
+            val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
+                .map { it.toDTO() }
+
+            val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+            recipe.toDTO(ingredients, isFavorite, images, steps, favoriteCount)
+        }
+    }
+
+    override fun toggleFavorite(userId: Long, recipeId: Long): Boolean {
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+
+        val recipe = recipeRepository.findById(recipeId)
+            .orElseThrow { IllegalArgumentException("레시피를 찾을 수 없습니다") }
+
+        val existingFavorite = favoriteRepository.findByUserAndRecipe(user, recipe)
+
+        return if (existingFavorite.isPresent) {
+            // 즐겨찾기 해제
+            favoriteRepository.deleteByUserAndRecipe(user, recipe)
+            false
+        } else {
+            // 즐겨찾기 추가
+            favoriteRepository.save(Favorite(user = user, recipe = recipe))
+            true
+        }
+    }
+
+    override fun getUserFavorites(userId: Long, page: Int, size: Int): Page<RecipeDTO> {
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+
+        val pageable: Pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
+
+        return favoriteRepository.findByUser(user, pageable).map { favorite ->
+            val recipe = favorite.recipe
+            val ingredients = recipeIngredientRepository.findByRecipe(recipe)
+
+            val images = recipeImageRepository.findByRecipeIdOrderByIsPrimaryDesc(recipe.id)
+                .map { it.toDTO() }
+
+            // 단계별 조리법 로드
+            val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
+                .map { it.toDTO() }
+
+            val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+            recipe.toDTO(ingredients, true, images, steps, favoriteCount)
+        }
+    }
+
+    override fun createRecipe(userId: Long, recipeCreateDTO: RecipeCreateDTO): RecipeDTO {
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+
+        val recipe = Recipe(
+            title = recipeCreateDTO.title,
+            description = recipeCreateDTO.description,
+            instructions = recipeCreateDTO.instructions, // 레거시 지원을 위해 유지
+            cookingTime = recipeCreateDTO.cookingTime,
+            servingSize = recipeCreateDTO.servingSize,
+            season = recipeCreateDTO.season, // 계절 정보 추가
+            category = recipeCreateDTO.category, // 카테고리 정보 추가
+            tags = recipeCreateDTO.tags, // 태그 정보 추가
+            user = user
+        )
+
+        val savedRecipe = recipeRepository.save(recipe)
+
+        // 레시피 재료 추가
+        val recipeIngredients = recipeCreateDTO.ingredients.map { ingredientDTO ->
+            val ingredient = if (ingredientDTO.ingredientId != null) {
+                // 기존 재료 사용
+                ingredientRepository.findById(ingredientDTO.ingredientId)
+                    .orElseThrow { IllegalArgumentException("재료를 찾을 수 없습니다: ${ingredientDTO.name}") }
+            } else {
+                // 이름으로 재료 찾기 또는 생성
+                val existingIngredient = ingredientRepository.findByNameIgnoreCase(ingredientDTO.name)
+                if (existingIngredient.isPresent) {
+                    existingIngredient.get()
+                } else {
+                    // 새 재료 생성
+                    ingredientRepository.save(Ingredient(name = ingredientDTO.name))
+                }
+            }
+
+            RecipeIngredient(
+                recipe = savedRecipe,
+                ingredient = ingredient,
+                quantity = ingredientDTO.quantity,
+                unit = ingredientDTO.unit,
+                optional = ingredientDTO.optional
+            )
+        }
+
+        recipeIngredientRepository.saveAll(recipeIngredients)
+
+        // 다중 이미지 추가
+        if (recipeCreateDTO.images.isNotEmpty()) {
+            val recipeImages = recipeCreateDTO.images.map { imageDTO ->
+                RecipeImage(
+                    recipe = savedRecipe,
+                    imageUrl = imageDTO.imageUrl,
+                    isPrimary = imageDTO.isPrimary,
+                    description = imageDTO.description
+                )
+            }
+            recipeImageRepository.saveAll(recipeImages)
+        }
+
+        // 단계별 조리법 추가
+        if (recipeCreateDTO.steps.isNotEmpty()) {
+            val recipeSteps = recipeCreateDTO.steps.map { stepDTO ->
+                RecipeStep(
+                    recipe = savedRecipe,
+                    stepNumber = stepDTO.stepNumber,
+                    description = stepDTO.description,
+                    imageUrl = stepDTO.imageUrl
+                )
+            }
+            recipeStepRepository.saveAll(recipeSteps)
+        } else if (recipeCreateDTO.instructions != null) {
+            // 기존 instructions 필드가 있으면 단일 단계로 변환 (하위 호환성 지원)
+            val step = RecipeStep(
+                recipe = savedRecipe,
+                stepNumber = 1,
+                description = recipeCreateDTO.instructions!!,
+                imageUrl = null
+            )
+            recipeStepRepository.save(step)
+        }
+
+        val images = recipeImageRepository.findByRecipeIdOrderByIsPrimaryDesc(recipe.id)
+            .map { it.toDTO() }
+
+        // 단계별 조리법 로드
+        val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
+            .map { it.toDTO() }
+
+        val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+        return savedRecipe.toDTO(recipeIngredients, false, images, steps, favoriteCount)
+    }
+
+    override fun getUserRecipes(userId: Long, page: Int, size: Int): Page<RecipeDTO> {
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+
+        val pageable: Pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
+
+        return recipeRepository.findByUser(user, pageable).map { recipe ->
+            val ingredients = recipeIngredientRepository.findByRecipe(recipe)
+
+            val images = recipeImageRepository.findByRecipeIdOrderByIsPrimaryDesc(recipe.id)
+                .map { it.toDTO() }
+
+            // 단계별 조리법 로드
+            val steps = recipeStepRepository.findByRecipeIdOrderByStepNumber(recipe.id)
+                .map { it.toDTO() }
+
+            val favoriteCount = favoriteRepository.countByRecipe(recipe);
+
+            recipe.toDTO(ingredients, true, images, steps, favoriteCount)
+        }
+    }
+
+    override fun deleteRecipe(userId: Long, recipeId: Long) {
+        val recipe = recipeRepository.findById(recipeId)
+            .orElseThrow { IllegalArgumentException("레시피를 찾을 수 없습니다") }
+
+        if (recipe.user.id != userId) {
+            throw IllegalArgumentException("해당 레시피를 삭제할 권한이 없습니다")
+        }
+
+        recipeRepository.delete(recipe)
+    }
 }

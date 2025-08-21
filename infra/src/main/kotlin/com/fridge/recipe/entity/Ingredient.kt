@@ -40,10 +40,6 @@ data class Ingredient(
     // 식재료에 대한 추가 정보
     @Column(name = "description", columnDefinition = "TEXT")
     val description: String? = null,
-    
-    // 식재료 이미지 URL
-    @Column(name = "image_url")
-    val imageUrl: String? = null,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ingredient", cascade = [CascadeType.ALL], orphanRemoval = true)
     val userIngredients: MutableList<UserIngredient> = mutableListOf(),

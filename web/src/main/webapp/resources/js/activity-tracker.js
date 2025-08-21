@@ -36,7 +36,7 @@ function recordActivity(activityType, recipeId = null, searchQuery = null, weigh
         searchQuery: searchQuery,
         weight: weight
     };
-    console.log(activityData)
+
     return fetch('/api/activities', {
         method: 'POST',
         headers: {

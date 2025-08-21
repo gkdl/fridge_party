@@ -207,7 +207,7 @@ $(document).ready(function() {
  */
 function loadUserActivity() {
     $.ajax({
-        url: '/api/activities',
+        url: '/api/activities/stats',
         type: 'GET',
         success: function(response) {
             $('#userRecipeCount').text(response.recipeCount || 0);
@@ -230,7 +230,7 @@ function loadUserActivity() {
  */
 function loadRecentRecipes() {
     $.ajax({
-        url: '/api/recipes/user?page=0&size=3',
+        url: '/api/recipes/user?count=3',
         type: 'GET',
         success: function(response) {
             let recipesHtml = '';

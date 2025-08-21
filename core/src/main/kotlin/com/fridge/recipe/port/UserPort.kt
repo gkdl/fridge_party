@@ -7,8 +7,6 @@ import com.fridge.recipe.vo.UserDTO
 import com.fridge.recipe.vo.UserRegistrationDTO
 
 interface UserPort {
-    fun getUserById(id: Long): UserDTO?
-
     fun getUserByEmail(email: String): UserDTO?
 
     fun registerUser(registrationDTO: UserRegistrationDTO): UserDTO

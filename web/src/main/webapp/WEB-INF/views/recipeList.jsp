@@ -60,8 +60,8 @@
                             <div class="col">
                                 <div class="card h-100 shadow-sm">
                                     <c:choose>
-                                        <c:when test="${not empty recipe.imageUrl}">
-                                            <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                                        <c:when test="${not empty recipe.images && recipe.images.size() > 0}">
+                                            <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail">
                                         </c:when>
                                         <c:otherwise>
                                             <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">
@@ -122,23 +122,55 @@
                     </c:otherwise>
                 </c:choose>
             </div>
-            
-            <!-- 페이징 -->
+
             <c:if test="${totalPages > 1}">
                 <nav aria-label="Page navigation" class="mt-5">
                     <ul class="pagination justify-content-center">
+
+                        <!-- 맨 처음 페이지로 이동 -->
                         <li class="page-item ${currentPage == 0 ? 'disabled' : ''}">
-                            <a class="page-link" href="/recipes?page=${currentPage - 1}${not empty query ? '&query=' + query : ''}" aria-label="Previous">
+                            <c:url var="firstPageUrl" value="/recipes">
+                                <c:param name="page" value="0" />
+                                <c:if test="${not empty query}">
+                                    <c:param name="query" value="${query}" />
+                                </c:if>
+                            </c:url>
+                            <a class="page-link" href="${firstPageUrl}" aria-label="First">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
-                        <c:forEach begin="0" end="${totalPages - 1}" var="i">
+
+                        <!-- 중간 페이지 목록 -->
+                        <c:set var="startPage" value="${currentPage - 5}" />
+                        <c:set var="endPage" value="${currentPage + 5}" />
+                        <c:if test="${startPage < 0}">
+                            <c:set var="startPage" value="0" />
+                        </c:if>
+                        <c:if test="${endPage >= totalPages}">
+                            <c:set var="endPage" value="${totalPages - 1}" />
+                        </c:if>
+
+                        <c:forEach begin="${startPage}" end="${endPage}" var="i">
                             <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                <a class="page-link" href="/recipes?page=${i}${not empty query ? '&query=' + query : ''}">${i + 1}</a>
+                                <c:url var="pageUrl" value="/recipes">
+                                    <c:param name="page" value="${i}" />
+                                    <c:if test="${not empty query}">
+                                        <c:param name="query" value="${query}" />
+                                    </c:if>
+                                </c:url>
+                                <a class="page-link" href="${pageUrl}">${i + 1}</a>
                             </li>
                         </c:forEach>
+
+                        <!-- 맨 마지막 페이지로 이동 -->
                         <li class="page-item ${currentPage == totalPages - 1 ? 'disabled' : ''}">
-                            <a class="page-link" href="/recipes?page=${currentPage + 1}${not empty query ? '&query=' + query : ''}" aria-label="Next">
+                            <c:url var="lastPageUrl" value="/recipes">
+                                <c:param name="page" value="${totalPages - 1}" />
+                                <c:if test="${not empty query}">
+                                    <c:param name="query" value="${query}" />
+                                </c:if>
+                            </c:url>
+                            <a class="page-link" href="${lastPageUrl}" aria-label="Last">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -228,53 +260,56 @@
 </div>
 
 <script src="/resources/js/recipe.js"></script>
+
+
+<jsp:include page="include/footer.jsp" />
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         feather.replace();
-        
+
         // 즐겨찾기 버튼 이벤트
         $('.favorite-btn').click(function() {
             const recipeId = $(this).data('recipe-id');
             const isFavorite = $(this).data('is-favorite');
             const $button = $(this);
-            
+
             toggleFavorite(recipeId, isFavorite, $button);
         });
-        
+
         // 정렬 옵션 이벤트
         $('.dropdown-item[data-sort]').click(function(e) {
             e.preventDefault();
             const sortBy = $(this).data('sort');
-            
+
             // 현재 URL에서 쿼리 파라미터 가져오기
             const urlParams = new URLSearchParams(window.location.search);
-            
+
             // 정렬 파라미터 설정
             urlParams.set('sort', sortBy);
-            
+
             // 페이지는 첫 페이지로 리셋
             urlParams.set('page', 0);
-            
+
             // 페이지 이동
             window.location.href = window.location.pathname + '?' + urlParams.toString();
         });
-        
+
         // 필터 적용 버튼 이벤트
         $('#applyFilterBtn').click(function() {
             const urlParams = new URLSearchParams(window.location.search);
-            
+
             // 카테고리 필터
             const categories = [];
             $('input[name="category"]:checked').each(function() {
                 categories.push($(this).val());
             });
-            
+
             if (categories.length > 0) {
                 urlParams.set('category', categories.join(','));
             } else {
                 urlParams.delete('category');
             }
-            
+
             // 조리시간 필터
             const cookingTime = $('input[name="cookingTime"]:checked').val();
             if (cookingTime > 0) {
@@ -282,27 +317,27 @@
             } else {
                 urlParams.delete('cookingTime');
             }
-            
+
             // 재료 필터
             const selectedIngredients = [];
             $('.selected-ingredient').each(function() {
                 selectedIngredients.push($(this).data('id'));
             });
-            
+
             if (selectedIngredients.length > 0) {
                 urlParams.set('ingredientIds', selectedIngredients.join(','));
             } else {
                 urlParams.delete('ingredientIds');
             }
-            
+
             // 페이지는 첫 페이지로 리셋
             urlParams.set('page', 0);
-            
+
             // 모달 닫기 및 페이지 이동
             $('#filterModal').modal('hide');
             window.location.href = window.location.pathname + '?' + urlParams.toString();
         });
-        
+
         // 재료 검색 자동완성
         $('#ingredientFilter').on('input', function() {
             const query = $(this).val().trim();
@@ -310,13 +345,13 @@
                 $('#ingredientSuggestions').addClass('d-none');
                 return;
             }
-            
+
             $.ajax({
                 url: '/api/ingredients/search?query=' + query,
                 type: 'GET',
                 success: function(data) {
                     let suggestionsHtml = '';
-                    
+
                     if (data.length === 0) {
                         suggestionsHtml = '<div class="list-group-item">검색 결과가 없습니다.</div>';
                     } else {
@@ -328,7 +363,7 @@
                             `;
                         });
                     }
-                    
+
                     $('#ingredientSuggestions').html(suggestionsHtml).removeClass('d-none');
                 },
                 error: function(error) {
@@ -337,12 +372,12 @@
                 }
             });
         });
-        
+
         // 재료 추천 클릭 이벤트
         $(document).on('click', '.ingredient-suggestion', function() {
             const id = $(this).data('id');
             const name = $(this).data('name');
-            
+
             // 이미 선택된 재료인지 확인
             if ($('.selected-ingredient[data-id="' + id + '"]').length === 0) {
                 const ingredientTag = `
@@ -350,26 +385,26 @@
                         ${name} <i class="feather-x remove-ingredient" data-id="${id}"></i>
                     </span>
                 `;
-                
+
                 $('#selectedIngredients').append(ingredientTag);
                 feather.replace();
             }
-            
+
             // 입력창 초기화 및 추천 목록 숨기기
             $('#ingredientFilter').val('');
             $('#ingredientSuggestions').addClass('d-none');
         });
-        
+
         // 선택된 재료 삭제 이벤트
         $(document).on('click', '.remove-ingredient', function(e) {
             e.stopPropagation();
             $(this).parent().remove();
         });
-        
+
         // 모달이 열릴 때 현재 필터 상태 적용
         $('#filterModal').on('show.bs.modal', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            
+
             // 카테고리 필터 상태 적용
             const categories = urlParams.get('category');
             if (categories) {
@@ -378,7 +413,7 @@
                     $('input[name="category"][value="' + category + '"]').prop('checked', true);
                 });
             }
-            
+
             // 조리시간 필터 상태 적용
             const cookingTime = urlParams.get('cookingTime');
             if (cookingTime) {
@@ -386,12 +421,12 @@
             } else {
                 $('#timeAll').prop('checked', true);
             }
-            
+
             // 재료 필터 상태 적용
             const ingredientIds = urlParams.get('ingredientIds');
             if (ingredientIds) {
                 const idArray = ingredientIds.split(',');
-                
+
                 // 각 재료 ID로 재료 정보 조회 및 표시
                 idArray.forEach(function(id) {
                     $.ajax({
@@ -403,7 +438,7 @@
                                     ${ingredient.name} <i class="feather-x remove-ingredient" data-id="${ingredient.id}"></i>
                                 </span>
                             `;
-                            
+
                             $('#selectedIngredients').append(ingredientTag);
                             feather.replace();
                         },
@@ -415,7 +450,7 @@
             }
         });
     });
-    
+
     // 즐겨찾기 토글 함수
     function toggleFavorite(recipeId, isFavorite, $button) {
         $.ajax({
@@ -423,13 +458,18 @@
             type: 'POST',
             success: function(response) {
                 if (response.isFavorite) {
-                    $button.data('is-favorite', true);
+                    $button.attr('data-is-favorite', true);
                     $button.html('<i data-feather="heart" class="text-danger filled-heart"></i>');
                 } else {
-                    $button.data('is-favorite', false);
+                    $button.attr('data-is-favorite', false);
                     $button.html('<i data-feather="heart" class="empty-heart"></i>');
                 }
                 feather.replace();
+
+                // 즐겨찾기 추가 활동 기록
+                if (typeof recordFavoriteActivity === 'function') {
+                    recordFavoriteActivity(recipeId, true);
+                }
             },
             error: function(error) {
                 console.error('Failed to toggle favorite', error);

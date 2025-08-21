@@ -9,79 +9,73 @@
             <p class="text-muted">나만의 레시피를 공유해보세요</p>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <form id="recipeForm">
                         <input type="hidden" id="recipeId" value="${recipe != null ? recipe.id : ''}">
-                        
+
                         <div class="mb-3">
                             <label for="title" class="form-label">레시피 제목 *</label>
-                            <input type="text" class="form-control" id="title" name="title" required 
+                            <input type="text" class="form-control" id="title" name="title" required
                                 value="${recipe != null ? recipe.title : ''}">
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="description" class="form-label">레시피 설명</label>
                             <textarea class="form-control" id="description" name="description" rows="3">${recipe != null ? recipe.description : ''}</textarea>
                             <div class="form-text">레시피에 대한 간단한 설명을 입력해주세요.</div>
                         </div>
-                        
+
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="cookingTime" class="form-label">조리 시간 (분)</label>
-                                <input type="number" class="form-control" id="cookingTime" name="cookingTime" min="1" 
+                                <input type="number" class="form-control" id="cookingTime" name="cookingTime" min="1"
                                     value="${recipe != null ? recipe.cookingTime : ''}">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="servingSize" class="form-label">인분</label>
-                                <input type="number" class="form-control" id="servingSize" name="servingSize" min="1" 
+                                <input type="number" class="form-control" id="servingSize" name="servingSize" min="1"
                                     value="${recipe != null ? recipe.servingSize : ''}">
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="mainImageFile" class="form-label">대표 이미지</label>
-                            <input type="file" class="form-control" id="mainImageFile" name="mainImageFile" accept="image/*">
-                            <input type="hidden" id="imageUrl" name="imageUrl" value="${recipe != null ? recipe.imageUrl : ''}">
-                            <div class="form-text">완성된 요리 사진을 업로드하세요(대표 이미지로 사용됩니다).</div>
-                            <div class="progress mt-2 d-none" id="mainImageProgress">
-                                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            <div class="col-md-4">
+                                <label for="season" class="form-label">계절</label>
+                                <select class="form-select" id="season" name="season">
+                                    <option value="ALL" ${recipe == null || recipe.season == null ? 'selected' : ''}>모든 계절</option>
+                                    <option value="SPRING" ${recipe != null && recipe.season == 'SPRING' ? 'selected' : ''}>봄</option>
+                                    <option value="SUMMER" ${recipe != null && recipe.season == 'SUMMER' ? 'selected' : ''}>여름</option>
+                                    <option value="FALL" ${recipe != null && recipe.season == 'FALL' ? 'selected' : ''}>가을</option>
+                                    <option value="WINTER" ${recipe != null && recipe.season == 'WINTER' ? 'selected' : ''}>겨울</option>
+                                </select>
+                                <div class="form-text">이 레시피가 가장 잘 맞는 계절을 선택하세요.</div>
                             </div>
-                            <div class="mt-2 ${empty recipe.imageUrl ? 'd-none' : ''}" id="mainImagePreview">
-                                <img src="${recipe != null ? recipe.imageUrl : ''}" class="img-thumbnail" style="max-height: 200px;" ${empty recipe.imageUrl ? '' : 'data-bs-toggle="modal" data-bs-target="#imagePreviewModal"'}>
-                            </div>
-                        </div>
-                        
-                        <!-- 다중 이미지 섹션 -->
-                        <div class="mb-3">
-                            <label class="form-label">추가 이미지 (최대 5개)</label>
-                            <div id="additionalImagesContainer" class="mb-2">
-                                <c:if test="${recipe != null && not empty recipe.images}">
-                                    <c:forEach items="${recipe.images}" var="image" varStatus="status">
 
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">이미지 (최대 5개)</label>
+                            <div id="additionalImagesContainer" class="mb-2">
+                                <c:if test="${recipe != null && not empty recipe.images && recipe.images.size() > 0}">
+                                    <c:forEach items="${recipe.images}" var="image" varStatus="status">
                                         <div class="row image-row mb-2">
                                             <div class="col-md-6">
-                                                <input type="url" class="form-control image-url" 
-                                                    placeholder="이미지 URL" value="${image.imageUrl}" required>
+                                                <input type="url" class="form-control image-url" placeholder="이미지 URL" value="${image.imageUrl}" required>
                                                 <input type="hidden" class="image-id" value="${image.id}">
                                             </div>
                                             <div class="col-md-4">
-                                                <input type="text" class="form-control image-description" 
-                                                    placeholder="이미지 설명(선택사항)" value="${image.description}">
+                                                <input type="text" class="form-control image-description" placeholder="이미지 설명(선택사항)" value="${image.description}">
                                             </div>
-                                            <div class="col-md-1">
-                                                <div class="form-check pt-2">
-                                                    <input class="form-check-input image-primary" type="checkbox" 
-                                                        ${image.isPrimary ? 'checked' : ''}>
+                                        </div>
+                                        <div class="row">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check mb-0 me-2" style="display: flex; align-items: center;">
+                                                    <input class="form-check-input image-primary" type="checkbox" ${image.isPrimary ? 'checked' : ''} style="margin: 0 6px 0 0;">
                                                     <label class="form-check-label">대표</label>
                                                 </div>
-                                            </div>
-                                            <div class="col-auto d-flex align-items-center">
-                                                <button type="button" class="btn btn-outline-danger btn-sm remove-image">
-                                                    <i data-feather="x"></i>
+                                                <button type="button" class="btn btn-outline-danger btn-sm p-1 remove-image" style="font-size: 0.7rem; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;">
+                                                    <i data-feather="x" style="width: 14px; height: 14px;"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -92,24 +86,74 @@
                                 <i data-feather="plus"></i> 이미지 추가
                             </button>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">재료 *</label>
                             <div id="ingredientsContainer" class="mb-2">
                                 <c:choose>
                                     <c:when test="${recipe != null && not empty recipe.ingredients}">
                                         <c:forEach items="${recipe.ingredients}" var="ingredient" varStatus="status">
-                                            <div class="row ingredient-row mb-2">
-                                                <div class="col-md-5">
-                                                    <input type="text" class="form-control ingredient-name" 
-                                                        placeholder="재료명" value="${ingredient.name}" required>
-                                                    <input type="hidden" class="ingredient-id" value="${ingredient.ingredientId}">
+                                            <div class="ingredient-row mb-2">
+                                                <div class="row">
+                                                    <div class="col-6 px-1 ">
+                                                        <input type="text" class="form-control ingredient-name" placeholder="재료명" value="${ingredient.name}" required>
+                                                        <input type="hidden" class="ingredient-id" value="${ingredient.ingredientId}">
+                                                    </div>
+                                                    <div class="col-3 px-1 ">
+                                                        <input type="text" class="form-control ingredient-quantity" placeholder="수량" value="${ingredient.quantity}" required>
+                                                    </div>
+                                                    <div class="col-3 px-1 ">
+                                                        <label>
+                                                            <select class="form-select ingredient-unit">
+                                                                <option value="" ${empty ingredient.unit ? 'selected' : ''}>단위</option>
+                                                                <option value="g" ${ingredient.unit == 'g' ? 'selected' : ''}>g</option>
+                                                                <option value="kg" ${ingredient.unit == 'kg' ? 'selected' : ''}>kg</option>
+                                                                <option value="ml" ${ingredient.unit == 'ml' ? 'selected' : ''}>ml</option>
+                                                                <option value="L" ${ingredient.unit == 'L' ? 'selected' : ''}>L</option>
+                                                                <option value="개" ${ingredient.unit == '개' ? 'selected' : ''}>개</option>
+                                                                <option value="컵" ${ingredient.unit == '컵' ? 'selected' : ''}>컵</option>
+                                                                <option value="모" ${ingredient.unit == '모' ? 'selected' : ''}>모</option>
+                                                                <option value="알" ${ingredient.unit == '알' ? 'selected' : ''}>알</option>
+                                                                <option value="대" ${ingredient.unit == '대' ? 'selected' : ''}>대</option>
+                                                                <option value="송이" ${ingredient.unit == '송이' ? 'selected' : ''}>송이</option>
+                                                                <option value="조각" ${ingredient.unit == '조각' ? 'selected' : ''}>조각</option>
+                                                                <option value="마리" ${ingredient.unit == '마리' ? 'selected' : ''}>마리</option>
+                                                                <option value="쪽" ${ingredient.unit == '쪽' ? 'selected' : ''}>쪽</option>
+                                                                <option value="줌" ${ingredient.unit == '줌' ? 'selected' : ''}>줌</option>
+                                                                <option value="개 분량" ${ingredient.unit == '개 분량' ? 'selected' : ''}>개 분량</option>
+                                                                <option value="장" ${ingredient.unit == '장' ? 'selected' : ''}>장</option>
+                                                                <option value="단" ${ingredient.unit == '단' ? 'selected' : ''}>단</option>
+                                                                <option value="작은술" ${ingredient.unit == '작은술' ? 'selected' : ''}>작은술</option>
+                                                                <option value="큰술" ${ingredient.unit == '큰술' ? 'selected' : ''}>큰술</option>
+                                                            </select>
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-3">
-                                                    <input type="number" class="form-control ingredient-quantity" 
-                                                        placeholder="수량" value="${ingredient.quantity}" step="0.01" min="0" required>
+                                                <div class="row">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="form-check mb-0 me-2" style="display: flex; align-items: center;">
+                                                            <input class="form-check-input ingredient-optional" type="checkbox" ${ingredient.optional ? 'checked' : ''} style="margin: 0 6px 0 0;">
+                                                            <label class="form-check-label mb-0">선택사항</label>
+                                                        </div>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm p-1 remove-ingredient" style="font-size: 0.7rem; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;">
+                                                            <i data-feather="x" style="width: 14px; height: 14px;"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-2">
+                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="ingredient-row mb-2">
+                                            <div class="row">
+                                                <div class="col-6 px-1 ">
+                                                    <input type="text" class="form-control ingredient-name" placeholder="재료명" required>
+                                                    <input type="hidden" class="ingredient-id">
+                                                </div>
+                                                <div class="col-3 px-1 ">
+                                                    <input type="text" class="form-control ingredient-quantity" placeholder="수량" required>
+                                                </div>
+                                                <div class="col-3 px-1 ">
                                                     <select class="form-select ingredient-unit">
                                                         <option value="" ${empty ingredient.unit ? 'selected' : ''}>단위</option>
                                                         <option value="g" ${ingredient.unit == 'g' ? 'selected' : ''}>g</option>
@@ -117,56 +161,33 @@
                                                         <option value="ml" ${ingredient.unit == 'ml' ? 'selected' : ''}>ml</option>
                                                         <option value="L" ${ingredient.unit == 'L' ? 'selected' : ''}>L</option>
                                                         <option value="개" ${ingredient.unit == '개' ? 'selected' : ''}>개</option>
+                                                        <option value="컵" ${ingredient.unit == '컵' ? 'selected' : ''}>컵</option>
+                                                        <option value="모" ${ingredient.unit == '모' ? 'selected' : ''}>모</option>
+                                                        <option value="알" ${ingredient.unit == '알' ? 'selected' : ''}>알</option>
+                                                        <option value="대" ${ingredient.unit == '대' ? 'selected' : ''}>대</option>
+                                                        <option value="송이" ${ingredient.unit == '송이' ? 'selected' : ''}>송이</option>
                                                         <option value="조각" ${ingredient.unit == '조각' ? 'selected' : ''}>조각</option>
+                                                        <option value="마리" ${ingredient.unit == '마리' ? 'selected' : ''}>마리</option>
+                                                        <option value="쪽" ${ingredient.unit == '쪽' ? 'selected' : ''}>쪽</option>
                                                         <option value="줌" ${ingredient.unit == '줌' ? 'selected' : ''}>줌</option>
+                                                        <option value="개 분량" ${ingredient.unit == '개 분량' ? 'selected' : ''}>개 분량</option>
+                                                        <option value="장" ${ingredient.unit == '장' ? 'selected' : ''}>장</option>
+                                                        <option value="단" ${ingredient.unit == '단' ? 'selected' : ''}>단</option>
+                                                        <option value="작은술" ${ingredient.unit == '작은술' ? 'selected' : ''}>작은술</option>
+                                                        <option value="큰술" ${ingredient.unit == '큰술' ? 'selected' : ''}>큰술</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-2">
-                                                    <div class="form-check pt-2">
-                                                        <input class="form-check-input ingredient-optional" type="checkbox" 
-                                                            ${ingredient.optional ? 'checked' : ''}>
+                                            </div>
+                                            <div class="row">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="form-check mb-0 me-2" style="display: flex; align-items: center;">
+                                                        <input class="form-check-input ingredient-optional" type="checkbox" style="margin: 0 6px 0 0;">
                                                         <label class="form-check-label">선택사항</label>
                                                     </div>
-                                                </div>
-                                                <div class="col-auto d-flex align-items-center">
-                                                    <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm p-1 remove-ingredient" style="font-size: 0.7rem; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;">
                                                         <i data-feather="x"></i>
                                                     </button>
                                                 </div>
-                                            </div>
-                                        </c:forEach>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="row ingredient-row mb-2">
-                                            <div class="col-md-5">
-                                                <input type="text" class="form-control ingredient-name" placeholder="재료명" required>
-                                                <input type="hidden" class="ingredient-id">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <input type="number" class="form-control ingredient-quantity" placeholder="수량" step="0.1" min="0" required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <select class="form-select ingredient-unit">
-                                                    <option value="" ${empty ingredient.unit ? 'selected' : ''}>단위</option>
-                                                    <option value="g" ${ingredient.unit == 'g' ? 'selected' : ''}>g</option>
-                                                    <option value="kg" ${ingredient.unit == 'kg' ? 'selected' : ''}>kg</option>
-                                                    <option value="ml" ${ingredient.unit == 'ml' ? 'selected' : ''}>ml</option>
-                                                    <option value="L" ${ingredient.unit == 'L' ? 'selected' : ''}>L</option>
-                                                    <option value="개" ${ingredient.unit == '개' ? 'selected' : ''}>개</option>
-                                                    <option value="조각" ${ingredient.unit == '조각' ? 'selected' : ''}>조각</option>
-                                                    <option value="줌" ${ingredient.unit == '줌' ? 'selected' : ''}>줌</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="form-check pt-2">
-                                                    <input class="form-check-input ingredient-optional" type="checkbox">
-                                                    <label class="form-check-label">선택사항</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto d-flex align-items-center">
-                                                <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient">
-                                                    <i data-feather="x"></i>
-                                                </button>
                                             </div>
                                         </div>
                                     </c:otherwise>
@@ -176,7 +197,7 @@
                                 <i data-feather="plus"></i> 재료 추가
                             </button>
                         </div>
-                        
+
                         <!-- 단계별 조리 방법 섹션 -->
                         <div class="mb-3">
                             <label class="form-label">조리 방법 (단계별) *</label>
@@ -250,13 +271,13 @@
                                 <i data-feather="plus"></i> 단계 추가
                             </button>
                         </div>
-                        
+
                         <!-- 기존 단일 조리방법 필드 (hidden으로 변경) -->
                         <div class="mb-3 d-none">
                             <label for="instructions" class="form-label">조리 방법 (레거시) *</label>
                             <textarea class="form-control" id="instructions" name="instructions" rows="10">${recipe != null ? recipe.instructions : ''}</textarea>
                         </div>
-                        
+
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button type="button" class="btn btn-secondary" id="cancelBtn">취소</button>
                             <button type="submit" class="btn btn-primary" id="saveRecipeBtn">저장</button>
@@ -271,22 +292,20 @@
 <script src="/resources/js/recipe.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("asdasd")
-        feather.replace();
-        
+
         // 재료 자동완성 설정
         setupIngredientAutocomplete();
-        
+
         // 이미지 추가 버튼 이벤트
         $('#addImageBtn').click(function() {
             addImageRow();
         });
-        
+
         // 이미지 삭제 버튼 이벤트
         $(document).on('click', '.remove-image', function() {
             $(this).closest('.image-row').remove();
         });
-        
+
         // 이미지 대표 체크박스 이벤트
         $(document).on('change', '.image-primary', function() {
             if ($(this).is(':checked')) {
@@ -294,12 +313,12 @@
                 $('.image-primary').not(this).prop('checked', false);
             }
         });
-        
+
         // 재료 추가 버튼 이벤트
         $('#addIngredientBtn').click(function() {
             addIngredientRow();
         });
-        
+
         // 재료 삭제 버튼 이벤트
         $(document).on('click', '.remove-ingredient', function() {
             if ($('.ingredient-row').length > 1) {
@@ -308,19 +327,19 @@
                 alert('최소 1개 이상의 재료가 필요합니다.');
             }
         });
-        
+
         // 취소 버튼 이벤트
         $('#cancelBtn').click(function() {
             if (confirm('작성 중인 내용이 저장되지 않습니다. 정말 취소하시겠습니까?')) {
                 window.history.back();
             }
         });
-        
+
         // 단계 추가 버튼 이벤트
         $('#addStepBtn').click(function() {
             addRecipeStep();
         });
-        
+
         // 단계 삭제 버튼 이벤트
         $(document).on('click', '.remove-step', function() {
             if ($('.recipe-step').length > 1) {
@@ -331,13 +350,13 @@
                 alert('최소 1개 이상의 조리 단계가 필요합니다.');
             }
         });
-        
+
         // 단계별 이미지 URL 변경 이벤트
         $(document).on('change', '.step-image-url', function() {
             const imageUrl = $(this).val().trim();
             const $previewContainer = $(this).closest('.card-body').find('.step-image-preview-container');
             const $preview = $previewContainer.find('.step-image-preview');
-            
+
             if (imageUrl) {
                 $preview.attr('src', imageUrl);
                 $previewContainer.removeClass('d-none');
@@ -349,25 +368,14 @@
                 $preview.removeAttr('data-bs-target');
             }
         });
-        
-        // 대표 이미지 파일 업로드 이벤트
-        $('#mainImageFile').change(function() {
-            uploadImage(this, 'recipe', function(imageUrl) {
-                $('#imageUrl').val(imageUrl);
-                $('#mainImagePreview').removeClass('d-none')
-                    .find('img').attr('src', imageUrl)
-                    .attr('data-bs-toggle', 'modal')
-                    .attr('data-bs-target', '#imagePreviewModal');
-            });
-        });
-        
+
         // 단계별 이미지 파일 업로드 이벤트
         $(document).on('change', '.step-image-file', function() {
             const $stepImageUrl = $(this).closest('.mb-3').find('.step-image-url');
             const $previewContainer = $(this).closest('.card-body').find('.step-image-preview-container');
             const $preview = $previewContainer.find('.step-image-preview');
             const $progressContainer = $(this).closest('.card-body').find('.step-image-progress');
-            
+
             uploadImage(this, 'step', function(imageUrl) {
                 $stepImageUrl.val(imageUrl).trigger('change');
                 $preview.attr('src', imageUrl);
@@ -377,7 +385,7 @@
                 $progressContainer.addClass('d-none');
             }, $progressContainer);
         });
-        
+
         // 추가 이미지 파일 업로드 이벤트
         $(document).on('change', '.additional-image-file', function() {
             const $row = $(this).closest('.image-row');
@@ -385,7 +393,7 @@
             const $progressContainer = $row.find('.additional-image-progress');
             const $preview = $row.find('.additional-image-preview');
             const $previewImg = $preview.find('img');
-            
+
             uploadImage(this, 'recipe', function(imageUrl) {
                 $imageUrl.val(imageUrl);
                 $previewImg.attr('src', imageUrl);
@@ -394,49 +402,64 @@
             }, $progressContainer);
         });
     });
-    
+
     // 재료 행 추가 함수
     function addIngredientRow() {
         const newRow = `
-            <div class="row ingredient-row mb-2">
-                <div class="col-md-5">
-                    <input type="text" class="form-control ingredient-name" placeholder="재료명" required>
-                    <input type="hidden" class="ingredient-id">
-                </div>
-                <div class="col-md-3">
-                    <input type="number" class="form-control ingredient-quantity" placeholder="수량" step="0.01" min="0" required>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select ingredient-unit">
-                        <option value="" selected>단위</option>
-                        <option value="g">g</option>
-                        <option value="kg">kg</option>
-                        <option value="ml">ml</option>
-                        <option value="L">L</option>
-                        <option value="개">개</option>
-                        <option value="조각">조각</option>
-                        <option value="줌">줌</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-check pt-2">
-                        <input class="form-check-input ingredient-optional" type="checkbox">
-                        <label class="form-check-label">선택사항</label>
+            <div class="ingredient-row mb-2">
+                <div class="row">
+                    <div class="col-6 px-1 ">
+                        <input type="text" class="form-control ingredient-name" placeholder="재료명" required>
+                        <input type="hidden" class="ingredient-id">
+                    </div>
+                    <div class="col-3 px-1 ">
+                        <input type="text" class="form-control ingredient-quantity" placeholder="수량" required>
+                    </div>
+                    <div class="col-3 px-1 ">
+                        <select class="form-select ingredient-unit">
+                          <option value="" selected>단위</option>
+                            <option value="g">g</option>
+                            <option value="kg">kg</option>
+                            <option value="ml">ml</option>
+                            <option value="L">L</option>
+                            <option value="개">개</option>
+                            <option value="컵">컵</option>
+                            <option value="모">모</option>
+                            <option value="알">알</option>
+                            <option value="대">대</option>
+                            <option value="송이">송이</option>
+                            <option value="조각">조각</option>
+                            <option value="마리">마리</option>
+                            <option value="쪽">쪽</option>
+                            <option value="줌">줌</option>
+                            <option value="개 분량">개 분량</option>
+                            <option value="장">장</option>
+                            <option value="단">단</option>
+                            <option value="작은술">작은술</option>
+                            <option value="큰술">큰술</option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-auto d-flex align-items-center">
-                    <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient">
-                        <i data-feather="x"></i>
-                    </button>
+                <div class="row">
+                    <div class="d-flex align-items-center">
+                        <div class="form-check mb-0 me-2" style="display: flex; align-items: center;">
+                            <input class="form-check-input ingredient-optional" type="checkbox" style="margin: 0 6px 0 0;">
+                            <label class="form-check-label">선택사항</label>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm p-1 remove-ingredient" style="font-size: 0.7rem; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
+
         `;
-        
+
         $('#ingredientsContainer').append(newRow);
         feather.replace();
         setupIngredientAutocomplete();
     }
-    
+
     // 이미지 행 추가 함수
     function addImageRow() {
         // 최대 5개 제한
@@ -444,10 +467,10 @@
             alert('이미지는 최대 5개까지 추가할 수 있습니다.');
             return;
         }
-        
+
         const newRow = `
             <div class="row image-row mb-2">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <div class="input-group">
                         <input type="file" class="form-control additional-image-file" accept="image/*">
                         <input type="hidden" class="image-url">
@@ -476,66 +499,63 @@
                 </div>
             </div>
         `;
-        
+
         $('#additionalImagesContainer').append(newRow);
         feather.replace();
     }
-    
+
     // 재료 자동완성 설정 함수
     function setupIngredientAutocomplete() {
         $('.ingredient-name').each(function() {
             if ($(this).data('autocomplete-initialized')) return;
-            
+
             $(this).data('autocomplete-initialized', true);
-            
+
             $(this).on('input', function() {
                 const $input = $(this);
                 const query = $input.val().trim();
-                
-                if (query.length < 2) return;
-                
+
+                // if (query.length < 2) return;
+
                 $.ajax({
                     url: '/api/ingredients/search?query=' + query,
                     type: 'GET',
                     success: function(data) {
                         if (data.length === 0) return;
-                        
+
                         // 자동완성 UI 생성
                         let $dropdown = $input.next('.autocomplete-dropdown');
-                        
+
                         if (!$dropdown.length) {
                             $dropdown = $('<div class="autocomplete-dropdown position-absolute bg-white shadow-sm rounded p-2 mt-1 z-index-1000"></div>');
                             $input.after($dropdown);
                         }
-                        
+
                         let suggestionsHtml = '';
                         data.slice(0, 5).forEach(function(ingredient) {
-                            suggestionsHtml += `
-                                <div class="autocomplete-item p-2" 
-                                    data-id="${ingredient.id}" 
-                                    data-name="${ingredient.name}">
-                                    ${ingredient.name}
-                                </div>
-                            `;
+                            suggestionsHtml +=
+                                `<div class="autocomplete-item p-2" data-id="` + ingredient.id + `"` +
+                                    ` data-name="` + ingredient.name + `">` + ingredient.name +
+                                ` </div>`;
                         });
-                        
+
                         $dropdown.html(suggestionsHtml).show();
                     }
                 });
             });
-            
+
             // 자동완성 항목 클릭 이벤트
             $(document).on('click', '.autocomplete-item', function() {
                 const id = $(this).data('id');
                 const name = $(this).data('name');
-                
+
                 const $row = $(this).closest('.ingredient-row');
                 $row.find('.ingredient-name').val(name);
                 $row.find('.ingredient-id').val(id);
-                
+
                 $(this).parent('.autocomplete-dropdown').hide();
             });
-            
+
             // 다른 곳 클릭 시 자동완성 닫기
             $(document).on('click', function(e) {
                 if (!$(e.target).closest('.autocomplete-dropdown, .ingredient-name').length) {
@@ -544,7 +564,7 @@
             });
         });
     }
-    
+
     // 레시피 단계 추가 함수
     function addRecipeStep() {
         const stepNumber = $('.recipe-step').length + 1;
@@ -582,7 +602,7 @@
         $('#stepsContainer').append(newStep);
         feather.replace();
     }
-    
+
     // 단계 번호 재정렬 함수
     function updateStepNumbers() {
         $('.recipe-step').each(function(index) {
@@ -591,18 +611,18 @@
             $(this).find('.step-number').val(stepNumber);
         });
     }
-    
+
     // 이미지 업로드 함수
     function uploadImage(fileInput, type, callback, $progressContainer) {
         if (!fileInput.files || !fileInput.files[0]) {
             return;
         }
-        
+
         const file = fileInput.files[0];
         const formData = new FormData();
         formData.append('file', file);
         formData.append('type', type);
-        
+
         // 진행 상황 표시 초기화
         if ($progressContainer) {
             $progressContainer.removeClass('d-none')
@@ -615,7 +635,7 @@
                 .css('width', '0%')
                 .attr('aria-valuenow', 0);
         }
-        
+
         $.ajax({
             url: '/api/upload/image',
             type: 'POST',
@@ -624,20 +644,20 @@
             contentType: false,
             xhr: function() {
                 const xhr = new window.XMLHttpRequest();
-                
+
                 // 업로드 진행 상황 표시
                 xhr.upload.addEventListener('progress', function(e) {
                     if (e.lengthComputable) {
                         const percentComplete = (e.loaded / e.total) * 100;
-                        const $progressBar = $progressContainer ? 
-                            $progressContainer.find('.progress-bar') : 
+                        const $progressBar = $progressContainer ?
+                            $progressContainer.find('.progress-bar') :
                             $('#mainImageProgress').find('.progress-bar');
-                            
+
                         $progressBar.css('width', percentComplete + '%')
                             .attr('aria-valuenow', percentComplete);
                     }
                 }, false);
-                
+
                 return xhr;
             },
             success: function(response) {
@@ -645,7 +665,7 @@
                     callback(response.imageUrl);
                 } else {
                     alert('이미지 업로드 실패: ' + (response.error || '알 수 없는 오류'));
-                    
+
                     if ($progressContainer) {
                         $progressContainer.addClass('d-none');
                     } else if (type === 'recipe') {
@@ -655,7 +675,7 @@
             },
             error: function() {
                 alert('서버 오류로 이미지 업로드에 실패했습니다.');
-                
+
                 if ($progressContainer) {
                     $progressContainer.addClass('d-none');
                 } else if (type === 'recipe') {
@@ -664,6 +684,34 @@
             }
         });
     }
+</script>
+
+
+<!-- 이미지 미리보기 모달 -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imagePreviewModalLabel">이미지 미리보기</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="이미지 미리보기">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 이미지 미리보기 모달 열릴 때 이미지 설정
+    document.getElementById('imagePreviewModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // 모달을 트리거한 요소
+        const imageUrl = button.getAttribute('src');
+        document.getElementById('modalImage').src = imageUrl;
+    });
 </script>
 
 <jsp:include page="include/footer.jsp" />

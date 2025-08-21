@@ -264,17 +264,17 @@
             });
         });
     });
-    
+
     // 사용자 활동 정보 로드 함수
     function loadUserActivity() {
         $.ajax({
-            url: '/api/activities',
+            url: '/api/activities/stats',
             type: 'GET',
             success: function(response) {
                 $('#userRecipeCount').text(response.recipeCount || 0);
                 $('#userRatingCount').text(response.ratingCount || 0);
                 $('#userFavoriteCount').text(response.favoriteCount || 0);
-                
+
                 // 바로가기 메뉴 카운트 업데이트
                 $('#ingredientCount').text(response.ingredientCount || 0);
                 $('#myRecipeCount').text(response.recipeCount || 0);
@@ -289,7 +289,7 @@
     // 최근 등록한 레시피 로드 함수
     function loadRecentRecipes() {
         $.ajax({
-            url: '/api/recipes/user?page=0&size=3',
+            url: '/api/recipes/user?count=3',
             type: 'GET',
             success: function(response) {
                 let recipesHtml = '';
@@ -354,9 +354,9 @@
                     response.forEach(function(recipe) {
                         var recipeHtml = '<div class="col">' + 
                             '<div class="card h-100">';
-                        
-                        if (recipe.imageUrl) {
-                            recipeHtml += '<img src="' + recipe.imageUrl + '" class="card-img-top recipe-thumbnail" alt="' + recipe.title + '">';
+
+                        if (recipe.images.length > 0) {
+                            recipeHtml += '<img src="' + recipe.images[0].imageUrl + '" class="card-img-top recipe-thumbnail" alt="' + recipe.images[0].description + '">';
                         } else {
                             recipeHtml += '<div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">' + 
                                 '<i data-feather="camera" class="text-secondary"></i>' + 

@@ -224,3 +224,13 @@ body {
 .z-index-1000 {
     z-index: 1000;
 }
+
+button[data-is-favorite="true"] svg {
+    color: red;
+    fill: red;
+}
+
+button[data-is-favorite="false"] svg {
+    color: red;
+    fill: none;
+}

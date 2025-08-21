@@ -24,6 +24,16 @@ class RecipeController(
     private val userActivityService: UserActivityService
 
 ) {
+
+    @GetMapping("/addRecipe")
+    fun addRecipePage(
+        request: HttpServletRequest,
+        response: HttpServletResponse
+    ): String {
+        // 사용자가 인증되어 있다면 레시피 등록 페이지로
+        return "addRecipe"
+    }
+
     @GetMapping("/api/recipes/recommended")
     @ResponseBody
     fun getRecommendedRecipes(
@@ -44,13 +54,8 @@ class RecipeController(
     fun updateRecipe(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable recipeId: Long,
-        @RequestBody recipeUpdateDTO: RecipeCreateDTO,
-        @CookieValue(name = "token", required = false) token: String?
+        @RequestBody recipeUpdateDTO: RecipeCreateDTO
     ): ResponseEntity<Any> {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("error" to "Not authenticated"))
-        }
-
         return try {
             val recipe = recipeService.updateRecipe(userDetails.getId(), recipeId, recipeUpdateDTO)
             ResponseEntity.ok(recipe)
@@ -63,14 +68,14 @@ class RecipeController(
 
     @GetMapping("/recipes/{recipeId}")
     fun recipeDetailPage(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @AuthenticationPrincipal userDetails: CustomUserDetails?,
         @PathVariable recipeId: Long,
+        request: HttpServletRequest,
         model: Model
     ): String {
         try {
-            val recipe = recipeService.getRecipeById(recipeId, userDetails.getId())
+            val recipe = recipeService.getRecipeById(recipeId, userDetails?.getId())
             model.addAttribute("recipe", recipe)
-            model.addAttribute("isLoggedIn", true)
             return "recipeDetail"
         } catch (e: IllegalArgumentException) {
             // 레시피를 찾을 수 없는 경우 레시피 목록으로 리다이렉트
@@ -86,12 +91,12 @@ class RecipeController(
     @GetMapping("/api/recipes/{recipeId}/similar")
     @ResponseBody
     fun getSimilarRecipes(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @AuthenticationPrincipal userDetails: CustomUserDetails?,
         @PathVariable recipeId: Long,
         @RequestParam(required = false, defaultValue = "4") count: Int,
     ): ResponseEntity<Any> {
         return try {
-            val recipes = recommendationService.getSimilarRecipes(recipeId, count, userDetails.getId())
+            val recipes = recommendationService.getSimilarRecipes(recipeId, count, userDetails?.getId())
             ResponseEntity.ok(recipes)
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -99,7 +104,7 @@ class RecipeController(
         }
     }
 
-    @PostMapping("/api/recipes/{recipeId}/rating")
+    @PostMapping("/api/recipes/{recipeId}/rate")
     @ResponseBody
     fun rateRecipe(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
@@ -148,49 +153,155 @@ class RecipeController(
         @PathVariable recipeId: Long,
         model: Model,
     ): String {
+         try {
+             val recipe = recipeService.getRecipeById(recipeId, userDetails.getId())
 
-        try {
-            try {
-                val recipe = recipeService.getRecipeById(recipeId, userDetails.getId())
+             // 레시피 소유자만 편집 가능
+             if (recipe.userId != userDetails.getId()) {
+                 return "redirect:/recipes/${recipeId}"
+             }
 
-                // 레시피 소유자만 편집 가능
-                if (recipe.userId != userDetails.getId()) {
-                    return "redirect:/recipes/${recipeId}"
-                }
-
-                model.addAttribute("recipe", recipe)
-                return "addRecipe"
-            } catch (e: IllegalArgumentException) {
-                return "redirect:/"
-            }
-        } catch (e: Exception) {
-            return "redirect:/"
-        }
+             model.addAttribute("recipe", recipe)
+             return "addRecipe"
+         } catch (e: IllegalArgumentException) {
+             return "redirect:/"
+         }
     }
 
 
     @GetMapping("/recipes")
     fun recipesPage(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @AuthenticationPrincipal userDetails: CustomUserDetails?,
         @RequestParam(required = false) query: String?,
         @RequestParam(required = false, defaultValue = "0") page: Int,
-        model: Model,
-        request: HttpServletRequest
+        model: Model
     ): String {
-
         val searchDTO = RecipeSearchDTO(
             query = query,
             page = page,
             size = 12
         )
-
-        val recipes = recipeService.searchRecipes(searchDTO, userDetails.getId())
+        val recipes = recipeService.searchRecipes(searchDTO, userDetails?.getId())
         model.addAttribute("recipes", recipes.content)
         model.addAttribute("currentPage", page)
         model.addAttribute("totalPages", recipes.totalPages)
         model.addAttribute("query", query)
-        model.addAttribute("isLoggedIn", true)
 
         return "recipeList"
     }
+
+    /**
+     * 특정 작성자의 다른 레시피 조회 API
+     * @param userId 작성자 ID
+     * @param excludeRecipeId 제외할 레시피 ID (현재 보고 있는 레시피)
+     * @param count 가져올 개수
+     */
+    @GetMapping("/api/recipes/user/{userId}")
+    @ResponseBody
+    fun getAuthorOtherRecipes(
+        @PathVariable userId: Long,
+        @RequestParam(required = false) excludeRecipeId: Long?,
+        @RequestParam(required = false, defaultValue = "4") count: Int
+    ): ResponseEntity<Any> {
+        return try {
+            val recipes = recipeService.getUserRecipesByIdExcept(userId, excludeRecipeId, count)
+            ResponseEntity.ok(recipes)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("error" to "작성자의 다른 레시피를 불러오는데 실패했습니다: ${e.message}"))
+        }
+    }
+
+    @GetMapping("/api/recipes/user")
+    @ResponseBody
+    fun getAuthorOtherRecipes(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @RequestParam(required = false) excludeRecipeId: Long?,
+        @RequestParam(required = false, defaultValue = "4") count: Int
+    ): ResponseEntity<Any> {
+        return try {
+            val recipes = recipeService.getUserRecipesByIdExcept(userDetails.getId(), excludeRecipeId, count)
+            ResponseEntity.ok(recipes)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("error" to "작성자의 다른 레시피를 불러오는데 실패했습니다: ${e.message}"))
+        }
+    }
+
+    @PostMapping("/api/recipes/{recipeId}/favorite")
+    @ResponseBody
+    fun toggleFavorite(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @PathVariable recipeId: Long,
+    ): ResponseEntity<Any> {
+        return try {
+            val isFavorite = recipeService.toggleFavorite(userDetails.getId(), recipeId)
+            ResponseEntity.ok(mapOf("isFavorite" to isFavorite))
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body(mapOf("error" to e.message))
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "Failed to toggle favorite"))
+        }
+    }
+
+    @GetMapping("/myFavorites")
+    fun myFavoritesPage(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        model: Model,
+    ): String {
+        try {
+            val recipes = recipeService.getUserFavorites(userDetails.getId(), 0, 100).content
+            model.addAttribute("recipes", recipes)
+            return "myFavorites"
+        } catch (e: Exception) {
+            return "redirect:/"
+        }
+    }
+
+    @PostMapping("/api/recipes")
+    @ResponseBody
+    fun createRecipe(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @RequestBody recipeCreateDTO: RecipeCreateDTO,
+    ): ResponseEntity<Any> {
+        return try {
+            val recipe = recipeService.createRecipe(userDetails.getId(), recipeCreateDTO)
+            ResponseEntity.status(HttpStatus.CREATED).body(recipe)
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body(mapOf("error" to e.message))
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "Failed to create recipe"))
+        }
+    }
+
+    @GetMapping("/myRecipes")
+    fun myRecipesPage(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        model: Model,
+    ): String {
+        try {
+            val recipes = recipeService.getUserRecipes(userDetails.getId(), 0, 10).content
+            model.addAttribute("recipes", recipes)
+            return "myRecipes"
+        } catch (e: IllegalArgumentException) {
+            return "redirect:/"
+        }
+    }
+
+    @DeleteMapping("/api/recipes/{recipeId}")
+    @ResponseBody
+    fun deleteRecipe(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @PathVariable recipeId: Long,
+    ): ResponseEntity<Any> {
+        return try {
+            recipeService.deleteRecipe(userDetails.getId(), recipeId)
+            ResponseEntity.ok(mapOf("message" to "Recipe deleted successfully"))
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body(mapOf("error" to e.message))
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "Failed to delete recipe"))
+        }
+    }
+
 }

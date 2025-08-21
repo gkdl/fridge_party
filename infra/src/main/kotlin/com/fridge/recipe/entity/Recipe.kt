@@ -40,9 +40,6 @@ class Recipe(
     @Column(name = "serving_size")
     var servingSize: Int? = null,
 
-    @Column(name = "image_url")
-    var imageUrl: String? = null, // 레거시 지원을 위해 유지 (단일 이미지)
-
     // 계절 정보 추가
     @Enumerated(EnumType.STRING)
     @Column(name = "season")
@@ -74,6 +71,9 @@ class Recipe(
     // 다중 이미지 지원
     @OneToMany(mappedBy = "recipe", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     val images: MutableList<RecipeImage> = mutableListOf(),
+
+    @OneToMany(mappedBy = "recipe", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val userActivity: MutableList<UserActivity> = mutableListOf(),
 
     // 단계별 조리법 지원
     @OneToMany(mappedBy = "recipe", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
@@ -149,7 +149,6 @@ class Recipe(
         this.instructions = dto.instructions
         this.cookingTime = dto.cookingTime
         this.servingSize = dto.servingSize
-        this.imageUrl = dto.imageUrl ?: this.imageUrl
         this.updatedAt = LocalDateTime.now()
     }
 }

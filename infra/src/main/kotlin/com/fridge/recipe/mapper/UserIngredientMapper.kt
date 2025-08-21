@@ -21,7 +21,6 @@ fun UserIngredient.toDTO(currentSeason: Season): UserIngredientDTO {
         unit = this.unit,
         expiryDate = this.expiryDate?.format(DateTimeFormatter.ISO_DATE_TIME),
         category = this.ingredient.category,
-        imageUrl = this.ingredient.imageUrl,
         currentSeasonAvailability = availability.name,
         inSeason = inSeason
     )

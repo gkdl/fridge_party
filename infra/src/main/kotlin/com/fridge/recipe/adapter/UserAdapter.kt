@@ -17,26 +17,9 @@ import java.time.format.DateTimeFormatter
 @Component
 class UserAdapter (
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder,
-    private val userActivityRepository: UserActivityRepository,
-    private val recipeRepository: RecipeRepository
+    private val passwordEncoder: PasswordEncoder
+
 ) : UserPort {
-    override fun getUserById(id: Long): UserDTO? {
-
-        val userOptional = userRepository.findById(id)
-
-        if (!userOptional.isPresent) {
-            return null
-        }
-
-        val user = userOptional.get()
-        return UserDTO(
-            id = user.id,
-            email = user.email,
-            username = user.username
-        )
-    }
-
     override fun getUserByEmail(email: String): UserDTO? {
         val userOptional = userRepository.findByEmail(email)
 
@@ -52,7 +35,6 @@ class UserAdapter (
         )
     }
 
-    @Transactional
     override fun registerUser(registrationDTO: UserRegistrationDTO): UserDTO {
         if (userRepository.existsByEmail(registrationDTO.email)) {
             throw IllegalArgumentException("이미 등록된 이메일입니다")

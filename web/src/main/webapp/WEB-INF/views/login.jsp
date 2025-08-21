@@ -19,9 +19,9 @@
                         <label for="password" class="form-label">비밀번호</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
-                        <label class="form-check-label" for="rememberMe">로그인 상태 유지</label>
+                    <div class="mb-3 form-check d-flex align-items-center">
+                        <input type="checkbox" class="form-check-input me-2" id="rememberMe" name="rememberMe">
+                        <label class="form-check-label mb-0" for="rememberMe">로그인 상태 유지</label>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">로그인</button>
@@ -30,26 +30,26 @@
                 
                 <hr class="my-4">
                 
-                <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-warning" id="kakaoLogin">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 3C6.5 3 2 6.3 2 10.5c0 2.9 1.9 5.5 4.7 6.9-.2.7-.7 2.5-.8 2.9-.1.5.2.5.4.3.2-.1 2.6-1.8 3.7-2.5.7.1 1.3.2 2 .2 5.5 0 10-3.3 10-7.5S17.5 3 12 3z"/>
-                        </svg>
-                        카카오 로그인
-                    </button>
-                    <button type="button" class="btn btn-success" id="naverLogin">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z"/>
-                        </svg>
-                        네이버 로그인
-                    </button>
-                    <button type="button" class="btn btn-danger" id="googleLogin">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064 5.963 5.963 0 014.23 1.744l2.876-2.746A9.99 9.99 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/>
-                        </svg>
-                        구글 로그인
-                    </button>
-                </div>
+<%--                <div class="d-grid gap-2">--%>
+<%--                    <button type="button" class="btn btn-warning" id="kakaoLogin">--%>
+<%--                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">--%>
+<%--                            <path d="M12 3C6.5 3 2 6.3 2 10.5c0 2.9 1.9 5.5 4.7 6.9-.2.7-.7 2.5-.8 2.9-.1.5.2.5.4.3.2-.1 2.6-1.8 3.7-2.5.7.1 1.3.2 2 .2 5.5 0 10-3.3 10-7.5S17.5 3 12 3z"/>--%>
+<%--                        </svg>--%>
+<%--                        카카오 로그인--%>
+<%--                    </button>--%>
+<%--                    <button type="button" class="btn btn-success" id="naverLogin">--%>
+<%--                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">--%>
+<%--                            <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z"/>--%>
+<%--                        </svg>--%>
+<%--                        네이버 로그인--%>
+<%--                    </button>--%>
+<%--                    <button type="button" class="btn btn-danger" id="googleLogin">--%>
+<%--                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">--%>
+<%--                            <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064 5.963 5.963 0 014.23 1.744l2.876-2.746A9.99 9.99 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/>--%>
+<%--                        </svg>--%>
+<%--                        구글 로그인--%>
+<%--                    </button>--%>
+<%--                </div>--%>
                 
                 <p class="mt-4 text-center">
                     계정이 없으신가요? <a href="/register">회원가입</a>

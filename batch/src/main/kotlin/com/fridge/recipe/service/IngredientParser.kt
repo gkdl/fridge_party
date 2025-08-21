@@ -46,16 +46,13 @@ class IngredientParser(
         "Ts" to "큰술",
         "ts" to "작은술",
         "dl" to "dl",
-        // 길이 단위 추가
         "cm" to "cm",
         "mm" to "mm",
         "m" to "m",
-        // 무게 단위 추가
         "oz" to "oz",
         "온스" to "oz",
         "lb" to "lb",
         "파운드" to "lb",
-        // 부피 단위 추가
         "fl oz" to "fl oz",
         "갤런" to "갤런"
     )

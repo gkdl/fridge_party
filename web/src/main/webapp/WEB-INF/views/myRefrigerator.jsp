@@ -14,7 +14,7 @@
                         <i data-feather="${currentSeason eq 'SPRING' ? 'sun' : currentSeason eq 'SUMMER' ? 'cloud-rain' : currentSeason eq 'FALL' ? 'cloud' : 'cloud-snow'}" class="me-1" style="width: 16px; height: 16px;"></i>
                         현재 계절: ${seasonKr}
                     </span>
-                    <a href="/ingredients/seasonal" class="text-decoration-none ms-2">
+                    <a href="${pageContext.request.contextPath}/ingredients/seasonal" class="text-decoration-none ms-2">
                         <i data-feather="info" class="me-1" style="width: 16px; height: 16px;"></i>
                         계절별 제철 식재료 보기
                     </a>
@@ -44,21 +44,21 @@
                                 <i data-feather="star" class="me-1" style="width: 14px; height: 14px;"></i>제철 식재료
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="vegetables-tab" data-bs-toggle="tab" data-bs-target="#vegetables" type="button" role="tab" aria-controls="vegetables" aria-selected="false">채소류</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="meat-tab" data-bs-toggle="tab" data-bs-target="#meat" type="button" role="tab" aria-controls="meat" aria-selected="false">육류</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="seafood-tab" data-bs-toggle="tab" data-bs-target="#seafood" type="button" role="tab" aria-controls="seafood" aria-selected="false">해산물</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="dairy-tab" data-bs-toggle="tab" data-bs-target="#dairy" type="button" role="tab" aria-controls="dairy" aria-selected="false">유제품</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab" aria-controls="other" aria-selected="false">기타</button>
-                        </li>
+<%--                        <li class="nav-item" role="presentation">--%>
+<%--                            <button class="nav-link" id="vegetables-tab" data-bs-toggle="tab" data-bs-target="#vegetables" type="button" role="tab" aria-controls="vegetables" aria-selected="false">채소류</button>--%>
+<%--                        </li>--%>
+<%--                        <li class="nav-item" role="presentation">--%>
+<%--                            <button class="nav-link" id="meat-tab" data-bs-toggle="tab" data-bs-target="#meat" type="button" role="tab" aria-controls="meat" aria-selected="false">육류</button>--%>
+<%--                        </li>--%>
+<%--                        <li class="nav-item" role="presentation">--%>
+<%--                            <button class="nav-link" id="seafood-tab" data-bs-toggle="tab" data-bs-target="#seafood" type="button" role="tab" aria-controls="seafood" aria-selected="false">해산물</button>--%>
+<%--                        </li>--%>
+<%--                        <li class="nav-item" role="presentation">--%>
+<%--                            <button class="nav-link" id="dairy-tab" data-bs-toggle="tab" data-bs-target="#dairy" type="button" role="tab" aria-controls="dairy" aria-selected="false">유제품</button>--%>
+<%--                        </li>--%>
+<%--                        <li class="nav-item" role="presentation">--%>
+<%--                            <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab" aria-controls="other" aria-selected="false">기타</button>--%>
+<%--                        </li>--%>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -176,31 +176,31 @@
                                 </c:choose>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="vegetables" role="tabpanel" aria-labelledby="vegetables-tab">
-                            <div class="vegetable-items">
-                                <!-- 채소류 아이템이 필터링되어 표시됩니다 -->
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="meat" role="tabpanel" aria-labelledby="meat-tab">
-                            <div class="meat-items">
-                                <!-- 육류 아이템이 필터링되어 표시됩니다 -->
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="seafood" role="tabpanel" aria-labelledby="seafood-tab">
-                            <div class="seafood-items">
-                                <!-- 해산물 아이템이 필터링되어 표시됩니다 -->
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="dairy" role="tabpanel" aria-labelledby="dairy-tab">
-                            <div class="dairy-items">
-                                <!-- 유제품 아이템이 필터링되어 표시됩니다 -->
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
-                            <div class="other-items">
-                                <!-- 기타 아이템이 필터링되어 표시됩니다 -->
-                            </div>
-                        </div>
+<%--                        <div class="tab-pane fade" id="vegetables" role="tabpanel" aria-labelledby="vegetables-tab">--%>
+<%--                            <div class="vegetable-items">--%>
+<%--                                <!-- 채소류 아이템이 필터링되어 표시됩니다 -->--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="tab-pane fade" id="meat" role="tabpanel" aria-labelledby="meat-tab">--%>
+<%--                            <div class="meat-items">--%>
+<%--                                <!-- 육류 아이템이 필터링되어 표시됩니다 -->--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="tab-pane fade" id="seafood" role="tabpanel" aria-labelledby="seafood-tab">--%>
+<%--                            <div class="seafood-items">--%>
+<%--                                <!-- 해산물 아이템이 필터링되어 표시됩니다 -->--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="tab-pane fade" id="dairy" role="tabpanel" aria-labelledby="dairy-tab">--%>
+<%--                            <div class="dairy-items">--%>
+<%--                                <!-- 유제품 아이템이 필터링되어 표시됩니다 -->--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">--%>
+<%--                            <div class="other-items">--%>
+<%--                                <!-- 기타 아이템이 필터링되어 표시됩니다 -->--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
                     </div>
                 </div>
             </div>
@@ -258,7 +258,7 @@
                     
                     <div class="mb-3">
                         <label for="ingredientName" class="form-label">재료 이름</label>
-                        <input type="text" class="form-control" id="ingredientName" name="name" required>
+                        <input type="text" class="form-control" id="ingredientName" name="name" readonly required>
                         <input type="hidden" id="ingredientId" name="ingredientId">
                     </div>
                     
@@ -276,8 +276,20 @@
                                 <option value="ml">ml</option>
                                 <option value="L">L</option>
                                 <option value="개">개</option>
+                                <option value="컵">컵</option>
+                                <option value="모">모</option>
+                                <option value="알">알</option>
+                                <option value="대">대</option>
+                                <option value="송이">송이</option>
                                 <option value="조각">조각</option>
+                                <option value="마리">마리</option>
+                                <option value="쪽">쪽</option>
                                 <option value="줌">줌</option>
+                                <option value="개 분량">개 분량</option>
+                                <option value="장">장</option>
+                                <option value="단">단</option>
+                                <option value="작은술">작은술</option>
+                                <option value="큰술">큰술</option>
                             </select>
                         </div>
                     </div>
@@ -286,6 +298,60 @@
                         <label for="expiryDate" class="form-label">유통기한 (선택)</label>
                         <input type="date" class="form-control" id="expiryDate" name="expiryDate">
                     </div>
+
+
+<%--                    <div class="card mb-3 border-primary">--%>
+<%--                        <div class="card-header bg-primary text-white">--%>
+<%--                            <h6 class="mb-0">계절별 가용성 설정</h6>--%>
+<%--                        </div>--%>
+<%--                        <div class="card-body">--%>
+<%--                            <p class="text-muted small mb-3">이 재료가 각 계절에 얼마나 구하기 쉬운지 설정합니다.</p>--%>
+<%--                            <div class="row mb-2">--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">봄</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editSpringAvailability" name="springAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">여름</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editSummerAvailability" name="summerAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">가을</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editFallAvailability" name="fallAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">겨울</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editWinterAvailability" name="winterAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                            <div class="d-flex align-items-center">--%>
+<%--                                <span class="badge bg-success me-1"></span> 풍부함--%>
+<%--                                <span class="badge bg-primary mx-1"></span> 보통--%>
+<%--                                <span class="badge bg-warning mx-1"></span> 적음--%>
+<%--                                <span class="badge bg-light text-muted mx-1"></span> 없음--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
                 </form>
             </div>
             <div class="modal-footer">
@@ -326,8 +392,20 @@
                                 <option value="ml">ml</option>
                                 <option value="L">L</option>
                                 <option value="개">개</option>
+                                <option value="컵">컵</option>
+                                <option value="모">모</option>
+                                <option value="알">알</option>
+                                <option value="대">대</option>
+                                <option value="송이">송이</option>
                                 <option value="조각">조각</option>
+                                <option value="마리">마리</option>
+                                <option value="쪽">쪽</option>
                                 <option value="줌">줌</option>
+                                <option value="개 분량">개 분량</option>
+                                <option value="장">장</option>
+                                <option value="단">단</option>
+                                <option value="작은술">작은술</option>
+                                <option value="큰술">큰술</option>
                             </select>
                         </div>
                     </div>
@@ -336,6 +414,59 @@
                         <label for="editExpiryDate" class="form-label">유통기한 (선택)</label>
                         <input type="date" class="form-control" id="editExpiryDate" name="expiryDate">
                     </div>
+
+<%--                    <div class="card mb-3 border-primary">--%>
+<%--                        <div class="card-header bg-primary text-white">--%>
+<%--                            <h6 class="mb-0">계절별 가용성 설정</h6>--%>
+<%--                        </div>--%>
+<%--                        <div class="card-body">--%>
+<%--                            <p class="text-muted small mb-3">이 재료가 각 계절에 얼마나 구하기 쉬운지 설정합니다.</p>--%>
+<%--                            <div class="row mb-2">--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">봄</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editSpringAvailability" name="springAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">여름</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editSummerAvailability" name="summerAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">가을</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editFallAvailability" name="fallAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                                <div class="col-3">--%>
+<%--                                    <label class="form-label">겨울</label>--%>
+<%--                                    <select class="form-select form-select-sm" id="editWinterAvailability" name="winterAvailability">--%>
+<%--                                        <option value="NONE">없음</option>--%>
+<%--                                        <option value="LOW">적음</option>--%>
+<%--                                        <option value="MEDIUM">보통</option>--%>
+<%--                                        <option value="HIGH">풍부함</option>--%>
+<%--                                    </select>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                            <div class="d-flex align-items-center">--%>
+<%--                                <span class="badge bg-success me-1"></span> 풍부함--%>
+<%--                                <span class="badge bg-primary mx-1"></span> 보통--%>
+<%--                                <span class="badge bg-warning mx-1"></span> 적음--%>
+<%--                                <span class="badge bg-light text-muted mx-1"></span> 없음--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
                 </form>
             </div>
             <div class="modal-footer">
@@ -453,8 +584,8 @@
                         var recipeHtml = '<div class="col">' +
                             '<div class="card h-100 shadow-sm">';
                         
-                        if (recipe.imageUrl) {
-                            recipeHtml += '<img src="' + recipe.imageUrl + '" class="card-img-top recipe-thumbnail" alt="' + recipe.title + '">';
+                        if (recipe.images != null && recipe.images.length > 0) {
+                            recipeHtml += '<img src="' + recipe.images[0].imageUrl + '" class="card-img-top recipe-thumbnail" alt="' + recipe.images[0].description + '">';
                         } else {
                             recipeHtml += '<div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">' +
                                 '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-camera text-secondary">' +

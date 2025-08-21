@@ -91,8 +91,8 @@
                     <div class="card h-100">
                         <div class="position-relative">
                             <c:choose>
-                                <c:when test="${not empty recipe.imageUrl}">
-                                    <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                                <c:when test="${not empty recipe.images && recipe.images.size() > 0}">
+                                    <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.images[0].description}">
                                 </c:when>
                                 <c:otherwise>
                                     <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">
@@ -124,7 +124,7 @@
                             <p class="card-text text-muted mb-3" style="height: 4.5em; overflow: hidden;">${recipe.description}</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="badge rounded-pill bg-light text-primary py-2 px-3">
-                                    <i data-feather="users" class="me-1" style="width: 14px; height: 14px;"></i> ${recipe.serving_size}인분
+                                    <i data-feather="users" class="me-1" style="width: 14px; height: 14px;"></i> ${recipe.servingSize}인분
                                 </span>
                             </div>
                         </div>
@@ -150,8 +150,8 @@
                 <div class="card h-100">
                     <div class="position-relative">
                         <c:choose>
-                            <c:when test="${not empty recipe.imageUrl}">
-                                <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                            <c:when test="${ not empty recipe.images && recipe.images.size() > 0}">
+                                <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
                             </c:when>
                             <c:otherwise>
                                 <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">
@@ -195,7 +195,7 @@
         </c:forEach>
     </div>
 </section>
-
+${recipe}
 <!-- 계절별 추천 레시피 섹션 -->
 <section class="seasonal-recipes-section mb-5">
     <div class="section-header position-relative mb-4">
@@ -210,34 +210,14 @@
                 <a href="${pageContext.request.contextPath}/recipes?season=${currentSeason}" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-3">더보기</a>
             </div>
         </div>
-
-        <div class="season-tabs">
-            <ul class="nav nav-pills nav-fill mt-3" id="seasonTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link ${currentSeason eq 'SPRING' ? 'active' : ''} rounded-pill" id="spring-tab" data-bs-toggle="tab" data-bs-target="#spring-recipes" type="button" role="tab" aria-controls="spring-recipes" aria-selected="${currentSeason eq 'SPRING'}">봄</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link ${currentSeason eq 'SUMMER' ? 'active' : ''} rounded-pill" id="summer-tab" data-bs-toggle="tab" data-bs-target="#summer-recipes" type="button" role="tab" aria-controls="summer-recipes" aria-selected="${currentSeason eq 'SUMMER'}">여름</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link ${currentSeason eq 'FALL' ? 'active' : ''} rounded-pill" id="fall-tab" data-bs-toggle="tab" data-bs-target="#fall-recipes" type="button" role="tab" aria-controls="fall-recipes" aria-selected="${currentSeason eq 'FALL'}">가을</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link ${currentSeason eq 'WINTER' ? 'active' : ''} rounded-pill" id="winter-tab" data-bs-toggle="tab" data-bs-target="#winter-recipes" type="button" role="tab" aria-controls="winter-recipes" aria-selected="${currentSeason eq 'WINTER'}">겨울</button>
-                </li>
-            </ul>
-        </div>
     </div>
-    
+
     <div class="tab-content" id="seasonTabContent">
         <!-- 계절별 레시피 - 봄 -->
         <div class="tab-pane fade ${currentSeason eq 'SPRING' ? 'show active' : ''}" id="spring-recipes" role="tabpanel" aria-labelledby="spring-tab">
             <div class="row">
                 <div class="col-lg-4 mb-4">
                     <div class="season-feature p-4 bg-light rounded-3 h-100">
-                        <div class="season-icon mb-3 bg-primary bg-opacity-10 p-3 rounded-circle d-inline-flex" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
-                            <i data-feather="sun" style="width: 32px; height: 32px; color: var(--primary-color)"></i>
-                        </div>
                         <h4 class="fw-bold mb-3">봄철 제철 식재료</h4>
                         <p class="text-muted mb-3">달콤한 딸기, 아스파라거스, 두릅, 냉이, 쑥, 봄동 등으로 신선하고 건강한 봄 요리를 준비해보세요.</p>
                         <div class="d-flex flex-wrap">
@@ -257,8 +237,8 @@
                                     <div class="card h-100 border-0 shadow-sm">
                                         <div class="position-relative">
                                             <c:choose>
-                                                <c:when test="${not empty recipe.imageUrl}">
-                                                    <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                                                <c:when test="${not empty recipe.images && recipe.images.size() > 0}">
+                                                    <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.images[0].description}">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">
@@ -304,9 +284,6 @@
             <div class="row">
                 <div class="col-lg-4 mb-4">
                     <div class="season-feature p-4 bg-light rounded-3 h-100">
-                        <div class="season-icon mb-3 bg-primary bg-opacity-10 p-3 rounded-circle d-inline-flex" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
-                            <i data-feather="cloud-rain" style="width: 32px; height: 32px; color: var(--primary-color)"></i>
-                        </div>
                         <h4 class="fw-bold mb-3">여름철 제철 식재료</h4>
                         <p class="text-muted mb-3">수박, 참외, 토마토, 오이, 가지, 고추 등 더위를 이겨내는 여름 식재료로 시원한 요리를 준비해보세요.</p>
                         <div class="d-flex flex-wrap">
@@ -326,8 +303,8 @@
                                     <div class="card h-100 border-0 shadow-sm">
                                         <div class="position-relative">
                                             <c:choose>
-                                                <c:when test="${not empty recipe.imageUrl}">
-                                                    <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                                                <c:when test="${not empty recipe.images && recipe.images.size() > 0}">
+                                                    <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.images[0].description}">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">
@@ -373,9 +350,6 @@
             <div class="row">
                 <div class="col-lg-4 mb-4">
                     <div class="season-feature p-4 bg-light rounded-3 h-100">
-                        <div class="season-icon mb-3 bg-primary bg-opacity-10 p-3 rounded-circle d-inline-flex" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
-                            <i data-feather="cloud" style="width: 32px; height: 32px; color: var(--primary-color)"></i>
-                        </div>
                         <h4 class="fw-bold mb-3">가을철 제철 식재료</h4>
                         <p class="text-muted mb-3">고구마, 밤, 버섯, 단호박, 귤, 배 등 가을의 풍성한 수확물로 영양가 높은 요리를 만들어보세요.</p>
                         <div class="d-flex flex-wrap">
@@ -395,8 +369,8 @@
                                     <div class="card h-100 border-0 shadow-sm">
                                         <div class="position-relative">
                                             <c:choose>
-                                                <c:when test="${not empty recipe.imageUrl}">
-                                                    <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                                                <c:when test="${not empty recipe.images && recipe.images.size() > 0}">
+                                                    <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.images[0].description}">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">
@@ -442,9 +416,6 @@
             <div class="row">
                 <div class="col-lg-4 mb-4">
                     <div class="season-feature p-4 bg-light rounded-3 h-100">
-                        <div class="season-icon mb-3 bg-primary bg-opacity-10 p-3 rounded-circle d-inline-flex" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
-                            <i data-feather="cloud-snow" style="width: 32px; height: 32px; color: var(--primary-color)"></i>
-                        </div>
                         <h4 class="fw-bold mb-3">겨울철 제철 식재료</h4>
                         <p class="text-muted mb-3">무, 배추, 시금치, 대파, 감귤, 석류 등 겨울철 제철 식재료로 든든하고 따뜻한 요리를 준비해보세요.</p>
                         <div class="d-flex flex-wrap">
@@ -464,8 +435,8 @@
                                     <div class="card h-100 border-0 shadow-sm">
                                         <div class="position-relative">
                                             <c:choose>
-                                                <c:when test="${not empty recipe.imageUrl}">
-                                                    <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                                                <c:when test="${not empty recipe.images && recipe.images.size() > 0}">
+                                                    <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.images[0].description}">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">

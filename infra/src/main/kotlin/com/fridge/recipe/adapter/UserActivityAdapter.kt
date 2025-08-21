@@ -4,6 +4,7 @@ import com.fridge.recipe.entity.UserActivity
 import com.fridge.recipe.enum.ActivityType
 import com.fridge.recipe.port.RecipePort
 import com.fridge.recipe.port.UserActivityPort
+import com.fridge.recipe.repository.FavoriteRepository
 import com.fridge.recipe.repository.RecipeRepository
 import com.fridge.recipe.repository.UserActivityRepository
 import com.fridge.recipe.repository.UserRepository
@@ -18,7 +19,8 @@ class UserActivityAdapter (
     private val userRepository: UserRepository,
     private val userActivityRepository: UserActivityRepository,
     private val recipeRepository: RecipeRepository,
-    private val recipePort: RecipePort
+    private val recipePort: RecipePort,
+    private val favoriteRepository: FavoriteRepository
 ) : UserActivityPort {
     /**
      * 사용자 활동 기록
@@ -29,11 +31,15 @@ class UserActivityAdapter (
 
         // 활동 유형에 따라 가중치 조정 (평점, 즐겨찾기 등은 더 높은 가중치)
         val adjustedWeight = when (activityCreateDTO.activityType) {
+            ActivityType.SEARCH_RECIPE -> 1.0
+            ActivityType.VIEW_CATEGORY -> 1.0
             ActivityType.VIEW_RECIPE -> 1.0
             ActivityType.FAVORITE -> 3.0
             ActivityType.RATING -> 2.0 + (activityCreateDTO.weight - 1.0) / 4.0 * 3.0 // 평점 1-5를 가중치 2-5로 변환
             ActivityType.SEARCH -> 1.5
             ActivityType.COOK -> 4.0
+            ActivityType.COOK_RECIPE -> 3.0
+            ActivityType.FAVORITE_RECIPE -> 2.0
         }
 
         val recipe = if (activityCreateDTO.recipeId != null) {
@@ -74,7 +80,8 @@ class UserActivityAdapter (
 
         // 활동 유형별 카운트
         val viewCount = userActivityRepository.countByUserAndActivityType(user, ActivityType.VIEW_RECIPE).toInt()
-        val favoriteCount = userActivityRepository.countByUserAndActivityType(user, ActivityType.FAVORITE).toInt()
+        //val favoriteCount = userActivityRepository.countByUserAndActivityType(user, ActivityType.FAVORITE).toInt()
+        val favoriteCount = favoriteRepository.countByUser(user);
         val ratingCount = userActivityRepository.countByUserAndActivityType(user, ActivityType.RATING).toInt()
         val searchCount = userActivityRepository.countByUserAndActivityType(user, ActivityType.SEARCH).toInt()
         val cookCount = userActivityRepository.countByUserAndActivityType(user, ActivityType.COOK).toInt()

@@ -170,7 +170,7 @@ class FoodRecipeService(
             }
 
             // 조리 단계 삭제
-            recipeStepRepository.deleteByRecipe(recipe.id)
+            recipeStepRepository.deleteByRecipe(recipe)
 
             // 메인 이미지 저장
             saveMainImage(recipe, recipeDTO.mainImageUrl)

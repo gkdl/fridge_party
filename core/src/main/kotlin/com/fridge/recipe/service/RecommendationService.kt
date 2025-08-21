@@ -1,13 +1,13 @@
 package com.fridge.recipe.service
 
-import com.fridge.recipe.port.IngredientPort
-import com.fridge.recipe.port.RecipePort
+import com.fridge.recipe.enum.Season
 import com.fridge.recipe.port.RecommendationPort
 import com.fridge.recipe.vo.RecipeDTO
-import com.fridge.recipe.vo.UserIngredientDTO
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class RecommendationService(
     private val recommendationPort: RecommendationPort
 ) {
@@ -17,5 +17,12 @@ class RecommendationService(
 
     fun getSimilarRecipes(recipeId: Long, count: Int = 4, userId: Long? = null): List<RecipeDTO> {
         return recommendationPort.getSimilarRecipes(recipeId, count, userId)
+    }
+
+    fun getSeasonalRecipes(season: Season? = null, count: Int = 8, userId: Long? = null): List<RecipeDTO> {
+        return recommendationPort.getSeasonalRecipes(season, count, userId)
+    }
+    fun getCurrentSeason(): Season {
+        return recommendationPort.getCurrentSeason()
     }
 }

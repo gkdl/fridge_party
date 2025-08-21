@@ -42,4 +42,28 @@ class RecipeService(
     fun searchRecipes(searchDTO: RecipeSearchDTO, userId: Long?): Page<RecipeDTO> {
         return recipePort.searchRecipes(searchDTO, userId)
     }
+
+    fun getUserRecipesByIdExcept(userId: Long, excludeRecipeId: Long?, limit: Int): Page<RecipeDTO> {
+        return recipePort.getUserRecipesByIdExcept(userId, excludeRecipeId, limit)
+    }
+
+    fun toggleFavorite(userId: Long, recipeId: Long): Boolean {
+        return recipePort.toggleFavorite(userId, recipeId)
+    }
+
+    fun getUserFavorites(userId: Long, page: Int, size: Int): Page<RecipeDTO> {
+        return recipePort.getUserFavorites(userId, page, size)
+    }
+
+    fun createRecipe(userId: Long, recipeCreateDTO: RecipeCreateDTO): RecipeDTO {
+        return recipePort.createRecipe(userId, recipeCreateDTO)
+    }
+
+    fun getUserRecipes(userId: Long, page: Int, size: Int): Page<RecipeDTO> {
+        return recipePort.getUserRecipes(userId, page, size)
+    }
+
+    fun deleteRecipe(userId: Long, recipeId: Long) {
+        return recipePort.deleteRecipe(userId, recipeId)
+    }
 }

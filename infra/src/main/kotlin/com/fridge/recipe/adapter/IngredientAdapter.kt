@@ -2,15 +2,14 @@ package com.fridge.recipe.adapter
 
 import com.fridge.recipe.entity.Ingredient
 import com.fridge.recipe.entity.UserIngredient
+import com.fridge.recipe.enum.IngredientAvailability
+import com.fridge.recipe.enum.Season
 import com.fridge.recipe.mapper.toDTO
 import com.fridge.recipe.port.IngredientPort
 import com.fridge.recipe.port.RecipePort
 import com.fridge.recipe.repository.*
 import com.fridge.recipe.util.DateUtil
-import com.fridge.recipe.vo.AddIngredientDTO
-import com.fridge.recipe.vo.IngredientDTO
-import com.fridge.recipe.vo.RecipeDTO
-import com.fridge.recipe.vo.UserIngredientDTO
+import com.fridge.recipe.vo.*
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -102,5 +101,48 @@ class IngredientAdapter (
 
         val currentSeason = DateUtil.getCurrentSeason()
         return userIngredient.toDTO(currentSeason)
+    }
+
+    /**
+     * 특정 계절에 제철인 재료들을 반환합니다
+     */
+    override fun getSeasonalIngredients(season: Season?): SeasonalIngredientsDTO {
+        val targetSeason = season ?: DateUtil.getCurrentSeason()
+        val allIngredients = ingredientRepository.findAll()
+
+        // 제철 식재료와 아닌 식재료로 분류
+        val (inSeason, offSeason) = allIngredients.partition {
+            val availability = it.getAvailabilityForSeason(targetSeason)
+            availability == IngredientAvailability.HIGH
+        }
+
+        return SeasonalIngredientsDTO(
+            season = targetSeason.name,
+            inSeasonIngredients = inSeason.map { it.toDTO(targetSeason) },
+            offSeasonIngredients = offSeason.map { it.toDTO(targetSeason) }
+        )
+    }
+
+    /**
+     * 사용자의 냉장고에 있는 재료 중 제철인 재료 목록을 반환합니다
+     */
+    override fun getUserSeasonalIngredients(userId: Long, season: Season?): SeasonalIngredientsDTO {
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다") }
+
+        val targetSeason = season ?: DateUtil.getCurrentSeason()
+        val userIngredients = userIngredientRepository.findByUser(user)
+
+        // 제철 식재료와 아닌 식재료로 분류
+        val (inSeason, offSeason) = userIngredients.partition {
+            val availability = it.ingredient.getAvailabilityForSeason(targetSeason)
+            availability == IngredientAvailability.HIGH
+        }
+
+        return SeasonalIngredientsDTO(
+            season = targetSeason.name,
+            inSeasonIngredients = inSeason.map { it.ingredient.toDTO(targetSeason) },
+            offSeasonIngredients = offSeason.map { it.ingredient.toDTO(targetSeason) }
+        )
     }
 }

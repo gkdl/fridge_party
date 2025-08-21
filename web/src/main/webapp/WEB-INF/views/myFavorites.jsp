@@ -39,8 +39,8 @@
                             <div class="col">
                                 <div class="card h-100 shadow-sm">
                                     <c:choose>
-                                        <c:when test="${not empty recipe.imageUrl}">
-                                            <img src="${recipe.imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.title}">
+                                        <c:when test="${not empty recipe.images && recipe.images.size() > 0}">
+                                            <img src="${recipe.images[0].imageUrl}" class="card-img-top recipe-thumbnail" alt="${recipe.images[0].description}">
                                         </c:when>
                                         <c:otherwise>
                                             <div class="card-img-top recipe-thumbnail-placeholder d-flex align-items-center justify-content-center bg-light">

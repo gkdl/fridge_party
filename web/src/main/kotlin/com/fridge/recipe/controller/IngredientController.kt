@@ -3,6 +3,7 @@ package com.fridge.recipe.controller
 import com.fridge.recipe.enum.Season
 import com.fridge.recipe.security.CustomUserDetails
 import com.fridge.recipe.service.IngredientService
+import com.fridge.recipe.service.RecommendationService
 import com.fridge.recipe.util.DateUtil
 import com.fridge.recipe.vo.AddIngredientDTO
 import com.fridge.recipe.vo.IngredientDTO
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse
 
 @Controller
 class IngredientController(
+    private val recommendationService: RecommendationService,
     private val ingredientService: IngredientService,
 ) {
 
@@ -104,5 +106,42 @@ class IngredientController(
         }
     }
 
+    @GetMapping("/ingredients/seasonal")
+    fun seasonalIngredientsPage(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        model: Model,
+        @RequestParam(required = false) season: String?,
+    ): String {
+        // 계절 정보 파싱
+        val targetSeason = if (season != null) {
+            try {
+                Season.valueOf(season.uppercase())
+            } catch (e: IllegalArgumentException) {
+                DateUtil.getCurrentSeason()
+            }
+        } else {
+            DateUtil.getCurrentSeason()
+        }
 
+        // 계절별 재료 목록 가져오기
+        val seasonalIngredients = ingredientService.getSeasonalIngredients(targetSeason)
+
+        // 로그인한 경우 사용자의 냉장고에 있는 재료와 비교
+        val userSeasonalIngredients = ingredientService.getUserSeasonalIngredients(userDetails.getId(), targetSeason)
+        model.addAttribute("userIngredients", userSeasonalIngredients)
+
+        model.addAttribute("seasonalIngredients", seasonalIngredients)
+        model.addAttribute("currentSeason", targetSeason.name)
+        model.addAttribute("seasonKr",
+            when(targetSeason) {
+                Season.SPRING -> "봄"
+                Season.SUMMER -> "여름"
+                Season.FALL -> "가을"
+                Season.WINTER -> "겨울"
+                else -> "계절 미지정"
+            }
+        )
+
+        return "seasonalIngredients"
+    }
 }

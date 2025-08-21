@@ -42,21 +42,6 @@ $(document).ready(function() {
     });
 });
 
-/**
- * 날짜 형식 변환 함수
- * @param {string} dateString - ISO 형식의 날짜 문자열
- * @returns {string} 형식화된 날짜 문자열
- */
-function formatDate(dateString) {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric'
-    });
-}
 
 /**
  * 날짜 및 시간 형식 변환 함수
@@ -74,38 +59,6 @@ function formatDateTime(dateString) {
         hour: '2-digit',
         minute: '2-digit'
     });
-}
-
-/**
- * 유통기한 남은 일수 계산 및 표시 함수
- * @param {string} expiryDateString - ISO 형식의 유통기한 날짜 문자열
- * @returns {Object} 남은 일수 정보 및 상태 클래스
- */
-function calculateExpiryStatus(expiryDateString) {
-    if (!expiryDateString) {
-        return { text: '유통기한 정보 없음', class: 'bg-secondary' };
-    }
-    
-    const expiryDate = new Date(expiryDateString);
-    const today = new Date();
-    
-    // 날짜 비교를 위해 시간 정보 제거
-    today.setHours(0, 0, 0, 0);
-    expiryDate.setHours(0, 0, 0, 0);
-    
-    // 남은 일수 계산
-    const diffTime = expiryDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) {
-        return { text: '유통기한 만료', class: 'bg-danger' };
-    } else if (diffDays === 0) {
-        return { text: '오늘 만료', class: 'bg-warning' };
-    } else if (diffDays <= 3) {
-        return { text: `유통기한 ${diffDays}일 남음`, class: 'bg-warning' };
-    } else {
-        return { text: `유통기한: ${formatDate(expiryDateString)}`, class: 'bg-info' };
-    }
 }
 
 /**

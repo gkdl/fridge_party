@@ -35,7 +35,7 @@ class UserController(
         return "register"
     }
     
-    @GetMapping("/mypage")
+    @GetMapping("/myPage")
     fun myPage(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         request: HttpServletRequest, response: HttpServletResponse,

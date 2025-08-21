@@ -128,24 +128,9 @@
             <div class="card shadow-sm mb-4">
                 <!-- 이미지 슬라이더 -->
                 <div id="recipeImageCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-indicators">
-                        <!-- 메인 이미지 + 추가 이미지가 있는 경우 -->
-                        <c:if test="${not empty recipe.imageUrl || not empty recipe.images}">
-                            <!-- 대표 이미지 인디케이터 -->
-                            <button type="button" data-bs-target="#recipeImageCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-
-                            <!-- 추가 이미지 인디케이터 -->
-                            <c:if test="${not empty recipe.images}">
-                                <c:forEach items="${recipe.images}" var="image" varStatus="status">
-                                    <button type="button" data-bs-target="#recipeImageCarousel" data-bs-slide-to="${status.index + 1}" aria-label="Slide ${status.index + 2}"></button>
-                                </c:forEach>
-                            </c:if>
-                        </c:if>
-                    </div>
-
                     <div class="carousel-inner">
                         <!-- 이미지가 하나도 없는 경우 -->
-                        <c:if test="${empty recipe.imageUrl && empty recipe.images}">
+                        <c:if test="${empty recipe.images || recipe.images.size() == 0}">
                             <div class="carousel-item active">
                                 <div class="card-img-top recipe-detail-image-placeholder d-flex align-items-center justify-content-center bg-light">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-camera text-secondary">
@@ -156,21 +141,11 @@
                             </div>
                         </c:if>
 
-                        <!-- 대표 이미지 -->
-                        <c:if test="${not empty recipe.imageUrl}">
-                            <div class="carousel-item active">
-                                <img src="${recipe.imageUrl}" class="d-block w-100 recipe-detail-image" alt="${recipe.title}">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <h5>대표 이미지</h5>
-                                </div>
-                            </div>
-                        </c:if>
-
                         <!-- 추가 이미지 -->
-                        <c:if test="${not empty recipe.images}">
+                        <c:if test="${not empty recipe.images && recipe.images.size() > 0}">
                             <c:forEach items="${recipe.images}" var="image" varStatus="status">
-                                <div class="carousel-item ${empty recipe.imageUrl && status.index == 0 ? 'active' : ''}">
-                                    <img src="${image.imageUrl}" class="d-block w-100 recipe-detail-image" alt="${not empty image.description ? image.description : recipe.title}">
+                                <div class="${empty image.imageUrl && status.index == 0 ? 'active' : ''}">
+                                    <img src="${image.imageUrl}" class="d-block w-100 recipe-detail-image" alt="${image.description }">
                                     <c:if test="${not empty image.description}">
                                         <div class="carousel-caption d-none d-md-block">
                                             <p>${image.description}</p>
@@ -182,7 +157,7 @@
                     </div>
 
                     <!-- 이미지가 2개 이상인 경우에만 컨트롤 표시 -->
-                    <c:if test="${(not empty recipe.imageUrl && not empty recipe.images) || (empty recipe.imageUrl && not empty recipe.images && recipe.images.size() > 1)}">
+                    <c:if test="${not empty recipe.images && recipe.images.size() > 1}">
                         <button class="carousel-control-prev" type="button" data-bs-target="#recipeImageCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
@@ -195,7 +170,6 @@
                 </div>
                 <div class="card-body">
                     <p class="card-text">${recipe.description}</p>
-
                     <div class="recipe-info mb-4">
                         <div class="row">
                             <div class="col-6 col-md-3 text-center">
@@ -217,7 +191,7 @@
                                     <i data-feather="star"></i>
                                 </div>
                                 <h6>평점</h6>
-                                <p>${recipe.avgRating != null ? recipe.avgRating : '0'}/5</p>
+                                <p>${recipe.avgRating != null ? recipe.avgRating : '0'}/5.0</p>
                             </div>
                             <div class="col-6 col-md-3 text-center">
                                 <div class="recipe-info-icon">
@@ -239,7 +213,17 @@
                         </c:forEach>
                     </ul>
 
-                    <h5 class="card-title">조리 방법</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">조리 방법</h5>
+
+                        <c:if test="${isLoggedIn && recipe.userId eq userId}">
+                            <div>
+                                <a href="/editRecipe/${recipe.id}" class="btn btn-outline-primary me-2">수정</a>
+                                <button class="btn btn-outline-danger" id="deleteRecipeBtn" data-recipe-id="${recipe.id}">삭제</button>
+                            </div>
+                        </c:if>
+                    </div>
+
                     <!-- 단계별 조리법이 있는 경우 -->
                     <div class="steps-container mb-4">
                         <c:forEach items="${recipe.steps}" var="step">
@@ -261,13 +245,6 @@
                             </div>
                         </c:forEach>
                     </div>
-                    <!-- 작성자인 경우 편집/삭제 버튼 표시 -->
-                    <c:if test="${isLoggedIn && recipe.userId eq userId}">
-                        <div class="d-flex justify-content-end">
-                            <a href="/editRecipe/${recipe.id}" class="btn btn-outline-primary me-2">수정</a>
-                            <button class="btn btn-outline-danger" id="deleteRecipeBtn" data-recipe-id="${recipe.id}">삭제</button>
-                        </div>
-                    </c:if>
                 </div>
             </div>
 
@@ -399,6 +376,15 @@
             $(this).closest('form').data('rating', value);
         });
 
+        // 즐겨찾기 버튼 이벤트
+        $('.favorite-btn').click(function() {
+            const recipeId = $(this).data('recipe-id');
+            const isFavorite = $(this).data('is-favorite');
+            const $button = $(this);
+
+            toggleFavorite(recipeId, isFavorite, $button);
+        });
+
         // 평점 제출
         $('#ratingForm').submit(function(e) {
             e.preventDefault();
@@ -431,35 +417,6 @@
             });
         });
 
-        // 즐겨찾기 버튼 이벤트
-        $('.favorite-btn').click(function() {
-            const recipeId = $(this).data('recipe-id');
-            const isFavorite = $(this).data('is-favorite');
-            const $button = $(this);
-
-            toggleFavorite(recipeId, isFavorite, $button);
-        });
-
-        // 레시피 삭제 이벤트
-        $('#deleteRecipeBtn').click(function() {
-            if (confirm('정말 이 레시피를 삭제하시겠습니까?')) {
-                const recipeId = $(this).data('recipe-id');
-
-                $.ajax({
-                    url: '/api/recipes/' + recipeId,
-                    type: 'DELETE',
-                    success: function(response) {
-                        alert('레시피가 삭제되었습니다.');
-                        window.location.href = '/myRecipes';
-                    },
-                    error: function(error) {
-                        console.error('Failed to delete recipe', error);
-                        alert('레시피 삭제에 실패했습니다.');
-                    }
-                });
-            }
-        });
-
         // 평점 목록 로드
         loadRatings(recipeId);
 
@@ -484,6 +441,33 @@
         </c:if>
     });
 
+    // 즐겨찾기 토글 함수
+    function toggleFavorite(recipeId, isFavorite, $button) {
+        $.ajax({
+            url: '/api/recipes/' + recipeId + '/favorite',
+            type: 'POST',
+            success: function(response) {
+                if (response.isFavorite) {
+                    $button.attr('data-is-favorite', true);
+                    $button.html('<i data-feather="heart" class="text-danger filled-heart"></i> 즐겨찾기 해제');
+                } else {
+                    $button.attr('data-is-favorite', false);
+                    $button.html('<i data-feather="heart" class="empty-heart"></i> 즐겨찾기 추가');
+                }
+                feather.replace();
+
+                // 즐겨찾기 추가 활동 기록
+                if (typeof recordFavoriteActivity === 'function') {
+                    recordFavoriteActivity(recipeId, true);
+                }
+            },
+            error: function(error) {
+                console.error('Failed to toggle favorite', error);
+                alert('즐겨찾기 등록/해제 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
     // 평점 목록 로드 함수
     function loadRatings(recipeId) {
         $.ajax({
@@ -495,7 +479,7 @@
                 if (response.content.length === 0) {
                     ratingsHtml = '<p class="text-center text-muted">아직 리뷰가 없습니다.</p>';
                 } else {
-                    response.forEach(function(rating) {
+                    response.content.forEach(function(rating) {
                         let starsHtml = '';
                         for (let i = 1; i <= 5; i++) {
                             if (i <= rating.rating) {
@@ -510,14 +494,14 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <div>
-                                            <strong>${rating.username}</strong>
+                                            <strong>` + rating.username + `</strong>
                                             <div class="rating-stars">
-                                                ${starsHtml}
+                                                ` + starsHtml + `
                                             </div>
                                         </div>
-                                        <%--<small class="text-muted">${formatDate(rating.createdAt)}</small>--%>
+                                        <small class="text-muted">` + formatDate(rating.createdAt) + `</small>
                                     </div>
-                                    <p class="card-text">${rating.comment || '코멘트 없음'}</p>
+                                    <p class="card-text">` + (rating.comment != null ? rating.comment : `코멘트 없음`) + `</p>
                                 </div>
                             </div>
                         `;
@@ -546,11 +530,15 @@
                     recipesHtml = '<p class="text-center text-muted">유사한 레시피가 없습니다.</p>';
                 } else {
                     response.forEach(function(recipe) {
-                        const imageHtml = recipe.imageUrl
-                            ? `<img src="${recipe.imageUrl}" class="img-fluid rounded-start" alt="${recipe.title}">`
-                                        : `<div class="img-fluid rounded-start bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
-                                <i data-feather="camera" class="text-secondary"></i>
-                           </div>`;
+                        const imageHtml = recipe.images
+                            ? `
+                                <div style="aspect-ratio: 3 / 2; overflow: hidden;">
+                                    <img src="` + recipe.images[0].imageUrl + `" class="img-fluid rounded-start"">
+                                </div>
+                            `: `
+                                <div class="img-fluid rounded-start bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
+                                    <i data-feather="camera" class="text-secondary"></i>
+                                </div>`;
 
                         recipesHtml +=
                             '<div class="card mb-3">' +
@@ -593,12 +581,17 @@
                 if (response.length === 0) {
                     recipesHtml = '<p class="text-center text-muted">다른 레시피가 없습니다.</p>';
                 } else {
-                    response.forEach(function(recipe) {
-                        const imageHtml = recipe.imageUrl
-                            ? `<img src="${recipe.imageUrl}" class="img-fluid rounded-start" alt="${recipe.title}">`
-                            : `<div class="img-fluid rounded-start bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
+                    response.content.forEach(function(recipe) {
+                        const imageHtml = recipe.images.length > 0
+                            ? `
+                                <div style="aspect-ratio: 3 / 2; overflow: hidden;">
+                                    <img src="` + recipe.images[0].imageUrl + `" class="img-fluid rounded-start"">
+                                </div>
+                            `: `
+                                <div class="img-fluid rounded-start bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
                                     <i data-feather="camera" class="text-secondary"></i>
-                               </div>`;
+                               </div>
+                            `;
 
                         recipesHtml +=
                             '<div class="card mb-3">' +
@@ -643,7 +636,7 @@
                     recipeIngredients.push({
                         id: ${ingredient.ingredientId},
                         name: "${ingredient.name}",
-                        quantity: ${ingredient.quantity},
+                        quantity: "${ingredient.quantity}",
                         unit: "${ingredient.unit}"
                     });
                 </c:forEach>
@@ -673,28 +666,6 @@
             error: function(error) {
                 console.error('Failed to load user ingredients', error);
                 $('#refrigeratorIngredients').html('<p class="text-center text-danger">냉장고 재료를 불러오는데 실패했습니다.</p>');
-            }
-        });
-    }
-
-    // 즐겨찾기 토글 함수
-    function toggleFavorite(recipeId, isFavorite, $button) {
-        $.ajax({
-            url: '/api/recipes/' + recipeId + '/favorite',
-            type: 'POST',
-            success: function(response) {
-                if (response.isFavorite) {
-                    $button.data('is-favorite', true);
-                    $button.html('<i data-feather="heart" class="text-danger filled-heart"></i> 즐겨찾기 해제');
-                } else {
-                    $button.data('is-favorite', false);
-                    $button.html('<i data-feather="heart" class="empty-heart"></i> 즐겨찾기 추가');
-                }
-                feather.replace();
-            },
-            error: function(error) {
-                console.error('Failed to toggle favorite', error);
-                alert('즐겨찾기 등록/해제 중 오류가 발생했습니다.');
             }
         });
     }
